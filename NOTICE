@@ -1,0 +1,20 @@
+This project is a fork of:
+
+    Chatbot with RAG and LangChain
+    https://github.com/ThomasJanssen-tech/Chatbot-with-RAG-and-LangChain
+    Copyright (c) 2025 Thomas Janssen
+    MIT License
+
+The structure (a separate ingest step writing to a persistent Chroma store, and
+a query step reading from it) is taken from that project. The MIT licence of the
+original is reproduced in LICENSE alongside this fork's own grant.
+
+What is NOT carried over, and why, is set out in README under "What changed from
+the reference". In short: content-addressed chunk ids, surviving citations, a
+measured abstention threshold, a question set with unanswerable questions in it,
+and no language model in the retrieval path.
+
+The reference repository also contains, at data/NIPS-2017-attention-is-all-you-
+need-Paper.pdf, the NIPS 2017 paper by Vaswani et al. A repository-wide MIT
+grant does not extend to a third party's published paper, so no corpus is
+committed here at all. See README, section "The corpus".

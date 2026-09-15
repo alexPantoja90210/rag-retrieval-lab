@@ -1,0 +1,27 @@
+// Ground truth for the reference corpus: Vaswani et al., "Attention Is All You Need", NIPS 2017.
+// The PDF is not committed. See README, section "The corpus".
+// "pages" are 1-indexed as a reader sees them. An empty list means the corpus cannot answer the
+// question, and those rows are what make an abstention threshold measurable at all.
+// Every non-empty row was verified by extracting the text of the claimed page and confirming the
+// "probe" string appears on it. verify_questions.py re-runs that check.
+{"id": "q01", "question": "Who are the authors of the paper and which organisations were they at?", "pages": [1], "probe": "Vaswani"}
+{"id": "q02", "question": "What does the paper say the Transformer dispenses with entirely?", "pages": [1], "probe": "dispensing with recurrence"}
+{"id": "q03", "question": "How many identical layers are stacked in the encoder and the decoder?", "pages": [3], "probe": "identical layers"}
+{"id": "q04", "question": "What output dimension do all sub-layers and embedding layers produce?", "pages": [3], "probe": "dmodel = 512"}
+{"id": "q05", "question": "How is scaled dot-product attention computed from queries, keys and values?", "pages": [4], "probe": "softmax"}
+{"id": "q06", "question": "Why are the dot products divided by the square root of the key dimension?", "pages": [4], "probe": "magnitude"}
+{"id": "q07", "question": "How many parallel attention heads does the model use?", "pages": [5], "probe": "parallel attention layers"}
+{"id": "q08", "question": "In which three different ways does the Transformer apply multi-head attention?", "pages": [5], "probe": "encoder-decoder attention"}
+{"id": "q09", "question": "How does the per-layer complexity of self-attention compare with a recurrent layer?", "pages": [6], "probe": "Complexity per Layer"}
+{"id": "q10", "question": "What kind of function is used to encode the position of a token?", "pages": [6], "probe": "sinusoid"}
+{"id": "q11", "question": "Which optimizer was used for training and how was the learning rate varied?", "pages": [7], "probe": "warmup"}
+{"id": "q12", "question": "What hardware was the model trained on and for how long?", "pages": [7], "probe": "P100"}
+{"id": "q13", "question": "What BLEU score does the big model achieve on English-to-German translation?", "pages": [8], "probe": "28.4"}
+{"id": "q14", "question": "What regularisation was applied to the output distribution during training?", "pages": [8], "probe": "label smoothing"}
+{"id": "q15", "question": "What happens to quality when the number of attention heads is varied?", "pages": [9], "probe": "Variations on the Transformer"}
+{"id": "u01", "question": "What BLEU score does the model achieve on English-to-Spanish translation?", "pages": [], "note": "adjacent and absent: the paper reports EN-DE and EN-FR only"}
+{"id": "u02", "question": "What learning rate does BERT use when fine-tuning on downstream tasks?", "pages": [], "note": "adjacent and absent: BERT postdates this paper"}
+{"id": "u03", "question": "How many parameters does GPT-4 have?", "pages": [], "note": "adjacent and absent"}
+{"id": "u04", "question": "What top-1 accuracy does the model reach on ImageNet classification?", "pages": [], "note": "adjacent and absent: this is a translation paper"}
+{"id": "u05", "question": "How do I write an S3 bucket policy that only allows CloudFront to read objects?", "pages": [], "note": "far from the corpus"}
+{"id": "u06", "question": "What temperature should the oven be at for sourdough bread?", "pages": [], "note": "far from the corpus"}

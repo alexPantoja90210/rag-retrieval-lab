@@ -1,0 +1,18 @@
+# The corpus is never committed. See README, section "The corpus".
+data/*
+!data/.gitkeep
+
+# Vector stores are derived artifacts. Rebuild them with ingest.py.
+chroma_db/
+
+# Evaluation runs are reproducible output, except the ones promoted to
+# eval/results/ on purpose as a recorded baseline.
+eval/*.json
+!eval/results/*.json
+
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store

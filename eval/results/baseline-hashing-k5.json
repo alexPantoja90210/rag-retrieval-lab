@@ -1,0 +1,851 @@
+{
+  "backend": "hashing",
+  "k": 5,
+  "metrics": {
+    "answerable": 15,
+    "hit@5": 0.7333333333333333,
+    "recall@5": 0.7333333333333333,
+    "mrr": 0.4488888888888889
+  },
+  "rows": [
+    {
+      "id": "q01",
+      "question": "Who are the authors of the paper and which organisations were they at?",
+      "pages": [
+        1
+      ],
+      "probe": "Vaswani",
+      "results": [
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.515684058171988
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5138350201361096
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5000433076300262
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4960864114610466
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.48425312230161044
+        }
+      ]
+    },
+    {
+      "id": "q02",
+      "question": "What does the paper say the Transformer dispenses with entirely?",
+      "pages": [
+        1
+      ],
+      "probe": "dispensing with recurrence",
+      "results": [
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4883122626055961
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.45607967568047936
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4195732118518215
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.41469813342961714
+        },
+        {
+          "page": 1,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4108771113054306
+        }
+      ]
+    },
+    {
+      "id": "q03",
+      "question": "How many identical layers are stacked in the encoder and the decoder?",
+      "pages": [
+        3
+      ],
+      "probe": "identical layers",
+      "results": [
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5924974161001479
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5913009731404655
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.521168457427023
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5039730995703375
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5012495982871162
+        }
+      ]
+    },
+    {
+      "id": "q04",
+      "question": "What output dimension do all sub-layers and embedding layers produce?",
+      "pages": [
+        3
+      ],
+      "probe": "dmodel = 512",
+      "results": [
+        {
+          "page": 3,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3422860778217923
+        },
+        {
+          "page": 9,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.28955114827202855
+        },
+        {
+          "page": 9,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.2579303518849787
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.25455189162414893
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.24221920398835917
+        }
+      ]
+    },
+    {
+      "id": "q05",
+      "question": "How is scaled dot-product attention computed from queries, keys and values?",
+      "pages": [
+        4
+      ],
+      "probe": "softmax",
+      "results": [
+        {
+          "page": 3,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4982788434347767
+        },
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.44427021806900346
+        },
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.37317591174274334
+        },
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.37126008557950607
+        },
+        {
+          "page": 1,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.35489771742287757
+        }
+      ]
+    },
+    {
+      "id": "q06",
+      "question": "Why are the dot products divided by the square root of the key dimension?",
+      "pages": [
+        4
+      ],
+      "probe": "magnitude",
+      "results": [
+        {
+          "page": 3,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.6275125464940754
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.6229918764027271
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.6175257833705614
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5948627098247746
+        },
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5751536577202593
+        }
+      ]
+    },
+    {
+      "id": "q07",
+      "question": "How many parallel attention heads does the model use?",
+      "pages": [
+        5
+      ],
+      "probe": "parallel attention layers",
+      "results": [
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3604858228739911
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.356753039987438
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3553345351398426
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3391511183555056
+        },
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.32152065612376557
+        }
+      ]
+    },
+    {
+      "id": "q08",
+      "question": "In which three different ways does the Transformer apply multi-head attention?",
+      "pages": [
+        5
+      ],
+      "probe": "encoder-decoder attention",
+      "results": [
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.45543853341338536
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4034357850937922
+        },
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.39624100539198137
+        },
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.38810294933086775
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.37528832929284317
+        }
+      ]
+    },
+    {
+      "id": "q09",
+      "question": "How does the per-layer complexity of self-attention compare with a recurrent layer?",
+      "pages": [
+        6
+      ],
+      "probe": "Complexity per Layer",
+      "results": [
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5077788354044472
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4845015835662394
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4699562699927744
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.43603325685298056
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4305555569467905
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "What kind of function is used to encode the position of a token?",
+      "pages": [
+        6
+      ],
+      "probe": "sinusoid",
+      "results": [
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.6033299406236686
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5992953922559813
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5830986801580913
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5562342206490895
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.5520986005038062
+        }
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "Which optimizer was used for training and how was the learning rate varied?",
+      "pages": [
+        7
+      ],
+      "probe": "warmup",
+      "results": [
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.37267802024452246
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.33806171851957734
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.33399276391510435
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3121245599051661
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3066666824105797
+        }
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "What hardware was the model trained on and for how long?",
+      "pages": [
+        7
+      ],
+      "probe": "P100",
+      "results": [
+        {
+          "page": 1,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.402911484037622
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3892494801549691
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.38501160163173376
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.37501875643887383
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3458572347530229
+        }
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "What BLEU score does the big model achieve on English-to-German translation?",
+      "pages": [
+        8
+      ],
+      "probe": "28.4",
+      "results": [
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.45412813673100816
+        },
+        {
+          "page": 1,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4511519326652693
+        },
+        {
+          "page": 9,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.39089404872074507
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3863631290765752
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3690451654965414
+        }
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "What regularisation was applied to the output distribution during training?",
+      "pages": [
+        8
+      ],
+      "probe": "label smoothing",
+      "results": [
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3706785569577731
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.36514836809371554
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.35355338668530845
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3533281254635816
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.35238955975086195
+        }
+      ]
+    },
+    {
+      "id": "q15",
+      "question": "What happens to quality when the number of attention heads is varied?",
+      "pages": [
+        9
+      ],
+      "probe": "Variations on the Transformer",
+      "results": [
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.48952248093299433
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.45221565048381696
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.44905023035909375
+        },
+        {
+          "page": 3,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4352857684248509
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4308202373908311
+        }
+      ]
+    },
+    {
+      "id": "u01",
+      "question": "What BLEU score does the model achieve on English-to-Spanish translation?",
+      "pages": [],
+      "note": "adjacent and absent: the paper reports EN-DE and EN-FR only",
+      "results": [
+        {
+          "page": 1,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4695738393411232
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.4265572714638941
+        },
+        {
+          "page": 9,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3917867226395917
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3576237555770475
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.35710116704785233
+        }
+      ]
+    },
+    {
+      "id": "u02",
+      "question": "What learning rate does BERT use when fine-tuning on downstream tasks?",
+      "pages": [],
+      "note": "adjacent and absent: BERT postdates this paper",
+      "results": [
+        {
+          "page": 11,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.2259730825138795
+        },
+        {
+          "page": 11,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.19202385222554907
+        },
+        {
+          "page": 10,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.18842690621737057
+        },
+        {
+          "page": 9,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.18057067463030607
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.1764125881937897
+        }
+      ]
+    },
+    {
+      "id": "u03",
+      "question": "How many parameters does GPT-4 have?",
+      "pages": [],
+      "note": "adjacent and absent",
+      "results": [
+        {
+          "page": 9,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.17194364270520535
+        },
+        {
+          "page": 6,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.15212777339796013
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.1366260164497064
+        },
+        {
+          "page": 9,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.1274413596074495
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.12533705771667047
+        }
+      ]
+    },
+    {
+      "id": "u04",
+      "question": "What top-1 accuracy does the model reach on ImageNet classification?",
+      "pages": [],
+      "note": "adjacent and absent: this is a translation paper",
+      "results": [
+        {
+          "page": 3,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.37886761957084336
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.36001800865239686
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.34919489625985856
+        },
+        {
+          "page": 4,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.33861290713758674
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.3254274336563545
+        }
+      ]
+    },
+    {
+      "id": "u05",
+      "question": "How do I write an S3 bucket policy that only allows CloudFront to read objects?",
+      "pages": [],
+      "note": "far from the corpus",
+      "results": [
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.2312023980243113
+        },
+        {
+          "page": 7,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.22537447965429547
+        },
+        {
+          "page": 3,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.20548047499058586
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.20082136963204833
+        },
+        {
+          "page": 9,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.18869022128071056
+        }
+      ]
+    },
+    {
+      "id": "u06",
+      "question": "What temperature should the oven be at for sourdough bread?",
+      "pages": [],
+      "note": "far from the corpus",
+      "results": [
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.2900962636732818
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.2831925477136801
+        },
+        {
+          "page": 2,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.27617238694740986
+        },
+        {
+          "page": 8,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.2674596320440956
+        },
+        {
+          "page": 5,
+          "source": "NIPS-2017-attention-is-all-you-need-Paper.pdf",
+          "score": 0.2523772343251929
+        }
+      ]
+    }
+  ],
+  "sweep": [
+    {
+      "threshold": 0.0,
+      "answerable_still_found": 0.7333333333333333,
+      "unanswerable_correctly_declined": 0.0,
+      "balanced": 0.36666666666666664
+    },
+    {
+      "threshold": 0.05,
+      "answerable_still_found": 0.7333333333333333,
+      "unanswerable_correctly_declined": 0.0,
+      "balanced": 0.36666666666666664
+    },
+    {
+      "threshold": 0.1,
+      "answerable_still_found": 0.7333333333333333,
+      "unanswerable_correctly_declined": 0.0,
+      "balanced": 0.36666666666666664
+    },
+    {
+      "threshold": 0.15,
+      "answerable_still_found": 0.7333333333333333,
+      "unanswerable_correctly_declined": 0.0,
+      "balanced": 0.36666666666666664
+    },
+    {
+      "threshold": 0.2,
+      "answerable_still_found": 0.7333333333333333,
+      "unanswerable_correctly_declined": 0.16666666666666663,
+      "balanced": 0.44999999999999996
+    },
+    {
+      "threshold": 0.25,
+      "answerable_still_found": 0.7333333333333333,
+      "unanswerable_correctly_declined": 0.5,
+      "balanced": 0.6166666666666667
+    },
+    {
+      "threshold": 0.3,
+      "answerable_still_found": 0.7333333333333333,
+      "unanswerable_correctly_declined": 0.6666666666666667,
+      "balanced": 0.7
+    },
+    {
+      "threshold": 0.35,
+      "answerable_still_found": 0.6666666666666666,
+      "unanswerable_correctly_declined": 0.6666666666666667,
+      "balanced": 0.6666666666666667
+    },
+    {
+      "threshold": 0.4,
+      "answerable_still_found": 0.4666666666666667,
+      "unanswerable_correctly_declined": 0.8333333333333334,
+      "balanced": 0.65
+    },
+    {
+      "threshold": 0.45,
+      "answerable_still_found": 0.3333333333333333,
+      "unanswerable_correctly_declined": 0.8333333333333334,
+      "balanced": 0.5833333333333334
+    },
+    {
+      "threshold": 0.5,
+      "answerable_still_found": 0.13333333333333333,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5666666666666667
+    },
+    {
+      "threshold": 0.55,
+      "answerable_still_found": 0.13333333333333333,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5666666666666667
+    },
+    {
+      "threshold": 0.6,
+      "answerable_still_found": 0.0,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5
+    },
+    {
+      "threshold": 0.65,
+      "answerable_still_found": 0.0,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5
+    },
+    {
+      "threshold": 0.7,
+      "answerable_still_found": 0.0,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5
+    },
+    {
+      "threshold": 0.75,
+      "answerable_still_found": 0.0,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5
+    },
+    {
+      "threshold": 0.8,
+      "answerable_still_found": 0.0,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5
+    },
+    {
+      "threshold": 0.85,
+      "answerable_still_found": 0.0,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5
+    },
+    {
+      "threshold": 0.9,
+      "answerable_still_found": 0.0,
+      "unanswerable_correctly_declined": 1.0,
+      "balanced": 0.5
+    }
+  ]
+}

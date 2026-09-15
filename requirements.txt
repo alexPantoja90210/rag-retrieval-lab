@@ -1,0 +1,19 @@
+# Direct dependencies only. Seven lines, not a pip freeze of somebody's laptop.
+#
+# The reference this is forked from ships a 140-line `pip freeze` against six
+# import statements, pinning ruff, pandas, kubernetes, fastapi and pydub that
+# it never uses. That file also happens to be UTF-16LE with a BOM, which pip
+# reads correctly and almost nothing else does. This one is UTF-8 with LF.
+#
+# Versions are the ones this was built and tested against on 15 Sep 2026.
+
+langchain-chroma==0.2.3
+langchain-community==0.3.21
+langchain-text-splitters==0.3.8
+pypdf==5.4.0
+
+# Only needed for the `minilm` backend. The `hashing` baseline, the tests and
+# the whole evaluation pipeline run without these. torch is a ~550 MB wheel, so
+# if you only want to see the machinery work, skip this block.
+langchain-huggingface==0.2.0
+sentence-transformers==4.1.0

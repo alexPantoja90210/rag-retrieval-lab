@@ -14,7 +14,6 @@ import argparse
 import sys
 from pathlib import Path
 
-from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import common
@@ -31,7 +30,7 @@ def load_chunks(data_path: Path) -> list:
             "corpus. See README, section 'The corpus'."
         )
 
-    raw = PyPDFDirectoryLoader(str(data_path)).load()
+    raw = common.load_pdf_pages(data_path)
     if not raw:
         sys.exit(f"{len(pdfs)} PDF(s) found but no text extracted. Scanned images need OCR.")
 

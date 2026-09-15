@@ -1,6 +1,13 @@
 # The corpus is never committed. See README, section "The corpus".
+#
+# Two rules, because one was not enough. data/* is the tidy case. *.pdf is the
+# real one: the first time a corpus was put on a machine by hand it landed at
+# the repository root, where data/* says nothing about it, and `git add -A`
+# would have committed it. A rule that protects a location only protects the
+# people who use that location.
 data/*
 !data/.gitkeep
+*.pdf
 
 # Vector stores are derived artifacts. Rebuild them with ingest.py.
 chroma_db/

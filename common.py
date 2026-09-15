@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 
 from langchain_chroma import Chroma
+from langchain_core.documents import Document
 
 # --- configuration ------------------------------------------------------
 
@@ -113,6 +114,41 @@ def get_store(backend: str = DEFAULT_BACKEND, chroma_path: Path | None = None) -
         persist_directory=str(path),
         collection_metadata={"hnsw:space": HNSW_SPACE},
     )
+
+
+def load_pdf_pages(data_path: Path) -> list[Document]:
+    """Read every PDF in data_path, one Document per page, via pypdf directly.
+
+    Deliberately not langchain_community's PyPDFDirectoryLoader. Two reasons.
+
+    The dependency: that loader is the only thing this project used from
+    langchain-community, and it pulls langchain, SQLAlchemy, aiohttp, langsmith
+    and dataclasses-json in behind it. That is the reference's "140 pins for six
+    imports" problem arriving through a transitive dependency instead of a
+    requirements file, and it counts the same.
+
+    The correctness one matters more. verify_questions.py checks the ground
+    truth by extracting page text with pypdf. If the ingest extracted text by a
+    different path, the question set would be verified against one string and
+    the store would be built from another, and the check would quietly be about
+    something other than what is indexed. One function, used by both, removes
+    the possibility rather than relying on the two agreeing.
+    """
+    from pypdf import PdfReader
+
+    docs: list[Document] = []
+    for pdf in sorted(data_path.glob("*.pdf")):
+        for page_no, page in enumerate(PdfReader(str(pdf)).pages):
+            text = page.extract_text() or ""
+            if not text.strip():
+                continue
+            docs.append(
+                Document(
+                    page_content=text,
+                    metadata={"source": pdf.name, "page": page_no},
+                )
+            )
+    return docs
 
 
 def chunk_id(source: str, page: int, index: int, text: str) -> str:

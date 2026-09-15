@@ -1,19 +1,39 @@
-# Direct dependencies only. Seven lines, not a pip freeze of somebody's laptop.
+# Direct dependencies only. Seven lines, not a pip freeze.
 #
 # The reference this is forked from ships a 140-line `pip freeze` against six
-# import statements, pinning ruff, pandas, kubernetes, fastapi and pydub that
-# it never uses. That file also happens to be UTF-16LE with a BOM, which pip
-# reads correctly and almost nothing else does. This one is UTF-8 with LF.
-#
-# Versions are the ones this was built and tested against on 15 Sep 2026.
+# import statements, pinning ruff, pandas, kubernetes, fastapi and pydub it
+# never uses. That file also happens to be UTF-16LE with a BOM, which pip reads
+# correctly and almost nothing else does. This one is UTF-8 with LF.
 
-langchain-chroma==0.2.3
-langchain-community==0.3.21
+# --- retrieval, required ---------------------------------------------------
+# langchain-core is pinned explicitly, not left to the resolver. Without the
+# pin pip reaches for langchain-core 1.x first and then has to backtrack, and
+# an unlucky resolution leaves 1.x installed against 0.3.x packages.
+langchain-core==0.3.86
+langchain-chroma==0.2.6
 langchain-text-splitters==0.3.8
+chromadb==1.5.9
 pypdf==5.4.0
 
-# Only needed for the `minilm` backend. The `hashing` baseline, the tests and
-# the whole evaluation pipeline run without these. torch is a ~550 MB wheel, so
-# if you only want to see the machinery work, skip this block.
+# --- the minilm backend, optional ------------------------------------------
+# The `hashing` baseline, the tests and the whole evaluation pipeline run
+# without these. torch is a large wheel (~124 MB on Windows, ~550 MB on Linux),
+# so skip this block if you only want to see the machinery work.
 langchain-huggingface==0.2.0
 sentence-transformers==4.1.0
+
+# --- why chromadb 1.x and not 0.6.x ----------------------------------------
+# chromadb 0.6.3 has a hard runtime dependency on chroma-hnswlib==0.7.6, a C++
+# extension. That package publishes cp312 wheels for macOS and Linux, but its
+# Windows wheels stop at cp311. On Windows with Python 3.12, the one
+# combination with no wheel, pip falls back to the source tarball and fails
+# with "Microsoft Visual C++ 14.0 or greater is required".
+#
+# From chromadb 1.0.20 onward chroma-hnswlib is only a `dev` extra, and
+# chromadb itself ships a cp39-abi3 wheel that covers 3.9 through 3.13 on all
+# three platforms. So no compiler is needed anywhere.
+#
+# langchain-chroma had to move with it: 0.2.3 caps chromadb below 0.7.0, and
+# 0.2.6 is the first release that requires chromadb>=1.0.20 while still
+# building on langchain-core 0.3.x. 1.x of langchain-chroma requires
+# langchain-core 1.x and is not compatible with the rest of this pinning.

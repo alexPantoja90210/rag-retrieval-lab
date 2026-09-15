@@ -15,8 +15,6 @@ import json
 import sys
 from pathlib import Path
 
-from pypdf import PdfReader
-
 import common
 
 
@@ -28,8 +26,11 @@ def main() -> int:
     if len(pdfs) > 1:
         sys.exit(f"expected exactly one PDF for this question set, found {len(pdfs)}")
 
-    pages = [" ".join((p.extract_text() or "").split()) for p in PdfReader(str(pdfs[0])).pages]
-    print(f"corpus   {pdfs[0].name}  ({len(pages)} pages)")
+    # The same reader ingest.py uses, so this verifies the text that is
+    # actually indexed rather than a second, possibly different, extraction.
+    docs = common.load_pdf_pages(common.DATA_PATH)
+    pages = {d.metadata["page"] + 1: " ".join(d.page_content.split()) for d in docs}
+    print(f"corpus   {pdfs[0].name}  ({len(pages)} pages with extractable text)")
 
     failures = 0
     checked = 0
@@ -47,10 +48,10 @@ def main() -> int:
             continue
         checked += 1
         for page in row["pages"]:
-            if page > len(pages):
-                print(f"  {row['id']}  FAIL  page {page} does not exist")
+            if page not in pages:
+                print(f"  {row['id']}  FAIL  page {page} has no extractable text")
                 failures += 1
-            elif probe.lower() not in pages[page - 1].lower():
+            elif probe.lower() not in pages[page].lower():
                 print(f"  {row['id']}  FAIL  {probe!r} not on page {page}")
                 failures += 1
 

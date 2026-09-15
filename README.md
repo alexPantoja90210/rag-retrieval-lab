@@ -32,6 +32,8 @@ Then swap `--backend hashing` for `--backend minilm` and compare. The first
 MiniLM run downloads about 90 MB of model weights once, after which it is
 offline.
 
+No compiler is needed on any platform, and nothing here asks for an API key.
+
 ## The corpus
 
 **No corpus is committed here, deliberately.** `data/` is in `.gitignore`.
@@ -168,22 +170,33 @@ exactly the defect it was written to avoid.
 
 ## What was verified, and where
 
-Built and run in a Linux container where `huggingface.co` is blocked at the
-proxy (`403 Forbidden` at CONNECT, confirmed for the model download itself). So
-the honest split is:
+Two different limits apply, and they are worth keeping apart.
 
-**Verified in the authoring environment**, with `--backend hashing`:
+**Verified, on Linux with Python 3.11, using `--backend hashing`:**
 chunk ids unique, deterministic and content-sensitive; citations surviving into
 and out of the store; a second ingest adding nothing; similarity scores in
 `[0,1]` and correctly ordered; the metric arithmetic against a hand-worked
 fixture; the sweep's optimum landing strictly between the extremes; the question
-set verified probe by probe against the PDF. 18 assertions, all passing. The
-dependency set was also installed and imported together, so the pins resolve.
+set verified probe by probe against the PDF. 18 assertions, all passing, against
+chromadb 1.5.9 with `hnsw:space` read back from the live collection rather than
+assumed.
 
-**Not verified in the authoring environment**: anything involving MiniLM's
-actual weights. The download is blocked there. The first `--backend minilm` run
-on a machine with network access is the verification step, and the number it
-produces should beat the hashing baseline above.
+**Not verified anywhere reachable from the authoring session: MiniLM.**
+`huggingface.co` is blocked at the proxy in both the session container and the
+desktop workspace (`403 Forbidden` at CONNECT, confirmed on the model download
+itself, while `pypi.org` returns 200 in both). The weights cannot be fetched
+from either, so the first `--backend minilm` run happens on a real machine, and
+the number it produces should beat the hashing baseline above.
+
+**The pins were wrong once, and the reason is worth recording.** The first
+version of `requirements.txt` was checked by installing it on Linux with Python
+3.11, where it works. It cannot install on Windows with Python 3.12, because
+`chromadb` 0.6.3 requires the `chroma-hnswlib` C++ extension and that package's
+Windows wheels stop at cp311. "The pins resolve" was true of one platform and
+was written as though it were true in general. The current pins avoid the
+compiler entirely; see the note at the bottom of `requirements.txt`. The
+platform matrix itself is still checked on one platform at a time, and saying so
+is the honest version of the claim.
 
 ## Provenance
 

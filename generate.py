@@ -130,8 +130,9 @@ class AnthropicModel:
     def __init__(self, name: str) -> None:
         self.name = name
 
-    def __call__(self, question, passages, expect=None,
-                 max_tokens: int = common.MAX_OUTPUT_TOKENS, **_):
+    def __call__(self, question, passages, expect=None, expected_pages=None,
+                 max_tokens: int = common.MAX_OUTPUT_TOKENS,
+                 system: str | None = None, **_):
         import os
 
         from anthropic import Anthropic

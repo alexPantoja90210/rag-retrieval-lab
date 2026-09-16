@@ -162,6 +162,36 @@ def main() -> int:
         check("sabotage selection is deterministic",
               ea.sabotage_passages(fake, 0) == ea.sabotage_passages(fake, 0))
 
+        print("model backends accept what the evaluator passes")
+        # The bug this exists to prevent: adding a keyword to the call site and
+        # to one backend's body, but not to another backend's signature. The
+        # stubs are exercised constantly and the API backend never is, because
+        # running it needs a key, so a signature drift there survives every
+        # test in this file. inspect.bind checks the contract without calling
+        # anything and without a key.
+        import inspect
+
+        import generate as _g
+        call_kwargs = dict(expect="x", expected_pages=[1], max_tokens=10,
+                           system="a system prompt")
+        for backend in ("stub", "stub-memoriser", "claude-haiku-4-5"):
+            m = _g.get_model(backend)
+            try:
+                inspect.signature(m.__call__).bind("a question", [], **call_kwargs)
+                ok = True
+            except TypeError:
+                ok = False
+            check(f"{backend} accepts the evaluator's keywords", ok)
+
+        check("every prompt arm is a non-empty string",
+              all(isinstance(v, str) and v.strip() for v in _g.PROMPTS.values()),
+              f"{len(_g.PROMPTS)} arms")
+        check("the reference arm really has no refusal token",
+              common.ABSTAIN not in _g.PROMPTS["reference"])
+        check("the plus-abstain arm is the reference plus exactly that",
+              _g.PROMPTS["reference-plus-abstain"].startswith(_g.PROMPTS["reference"])
+              and common.ABSTAIN in _g.PROMPTS["reference-plus-abstain"])
+
         print("question set")
         qs = load_questions(Path("eval/attention-paper.questions.jsonl"))
         check("the set contains unanswerable questions",

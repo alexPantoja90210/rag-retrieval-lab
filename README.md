@@ -126,47 +126,86 @@ not earning its place.
 `minilm` is `sentence-transformers/all-MiniLM-L6-v2`, downloaded once and then
 local. No API key, no per-query cost, no network at inference.
 
-## Recorded baseline
+## Results
 
-`hashing`, `k=5`, chunk 900 / overlap 150, 48 chunks from the 11-page paper,
-21 questions of which 6 are unanswerable. Full output in
-`eval/results/baseline-hashing-k5.json`.
+Two backends, same corpus, same question set. 48 chunks from the 11-page paper,
+chunk 900 / overlap 150, k=5, 21 questions of which 6 are unanswerable. Full
+output in `eval/results/`.
 
-| metric | value |
-| --- | --- |
-| hit@5 | 0.733 |
-| recall@5 | 0.733 |
-| MRR | 0.449 |
+| metric | hashing (floor) | MiniLM |
+| --- | --- | --- |
+| hit@5 | 0.733 | 0.733 |
+| recall@5 | 0.733 | 0.733 |
+| MRR | 0.449 | **0.539** |
+| right page at rank 1 | 4 of 15 | **6 of 15** |
+| best balanced threshold | 0.30 | 0.50 |
+| balanced score at it | **0.70** | 0.65 |
 
-Threshold sweep, `found` = answerable questions that still retrieve a correct
-page, `declined` = unanswerable questions correctly returning nothing:
+### The aggregate did not move, and almost everything underneath it did
 
-| threshold | found | declined | balanced |
+Both backends find the right page for 11 of 15 answerable questions. That single
+number hides the fact that **four of fifteen questions changed outcome**:
+
+| | hashing | MiniLM | |
 | --- | --- | --- | --- |
-| 0.00 | 0.73 | 0.00 | 0.37 |
-| 0.20 | 0.73 | 0.17 | 0.45 |
-| 0.25 | 0.73 | 0.50 | 0.62 |
-| **0.30** | **0.73** | **0.67** | **0.70** |
-| 0.35 | 0.67 | 0.67 | 0.67 |
-| 0.40 | 0.47 | 0.83 | 0.65 |
-| 0.50 | 0.13 | 1.00 | 0.57 |
-| 0.60 | 0.00 | 1.00 | 0.50 |
+| q03, how many identical layers | MISS | rank 2 | fixed |
+| q14, what regularisation on the output | MISS | rank 4 | fixed |
+| q02, what does it dispense with | rank 5 | MISS | broken |
+| q10, what function encodes position | rank 2 | MISS | broken |
 
-Read the shape, not the number. Up to 0.30 the threshold is free: it turns away
-two thirds of the unanswerable questions and costs no recall at all. Past 0.35
-every further point of caution is paid for in answers that were there and got
-thrown away. That is the trade a RAG makes when it decides whether to speak, and
-this is what it looks like when it is measured rather than guessed.
+Two fixed, two broken, on fifteen questions. An aggregate that stays still is
+not evidence that the system stayed still, and with a set this small the
+sensible reading of `hit@5` is that it did not distinguish the two backends at
+all.
 
-The hardest unanswerable question is the one closest to the corpus. "What BLEU
-score does the model achieve on English-to-Spanish translation?" scores 0.470,
-far above the other five, because the paper is full of BLEU scores for other
-language pairs. A threshold that catches "what temperature for sourdough bread"
-is easy and worth almost nothing.
+MRR is the more defensible improvement, and it comes from somewhere specific:
+not from finding more pages, but from ranking better the ones both backends
+find. Rank-1 hits go from 4 to 6, and q06 moves from rank 5 to rank 2, q07 from
+3 to 1, q12 from 2 to 1. That is what a sentence embedding is supposed to buy,
+and here it bought it.
 
-**0.30 is not a constant to copy.** It is valid for this corpus, this question
-set, this backend and `hnsw:space=cosine`. Copying it elsewhere reproduces
-exactly the defect it was written to avoid.
+### The result that matters: a better embedding made abstention harder
+
+The six unanswerable questions, by top score:
+
+| | | hashing | MiniLM | |
+| --- | --- | --- | --- | --- |
+| u01 | BLEU for English to Spanish | 0.470 | **0.709** | +0.239 |
+| u02 | BERT fine-tuning learning rate | 0.226 | **0.483** | +0.257 |
+| u03 | GPT-4 parameter count | 0.172 | **0.272** | +0.100 |
+| u04 | ImageNet top-1 accuracy | 0.379 | **0.427** | +0.048 |
+| u05 | S3 bucket policy for CloudFront | 0.231 | 0.110 | -0.121 |
+| u06 | oven temperature for sourdough | 0.290 | 0.170 | -0.120 |
+
+The split is clean and it is not a coincidence. The four questions MiniLM got
+**more** confident about are the four that are about machine translation, BERT,
+GPT-4 and ImageNet: adjacent to the corpus and absent from it. The two it got
+**less** confident about are the two from another world entirely.
+
+A sentence embedding is good at recognising what a question is about. Being
+about the same thing is precisely what makes an unanswerable question dangerous.
+So the better model pulls near-misses up and pushes far-misses down, and the
+near-misses were always the hard part.
+
+The consequence is visible in the bottom row of the first table. On the combined
+objective of answering when it can and declining when it cannot, **MiniLM scores
+worse than hashed bag-of-words**, 0.65 against 0.70, and it needs a threshold of
+0.50 rather than 0.30 to get there, by which point it has already discarded a
+third of its own correct retrievals.
+
+**Semantic similarity is not answerability.** Every system in this family
+computes the first and then uses it as though it were the second, which is why
+"retrieve the top k and tell the model to answer from them" produces confident
+answers to questions the corpus cannot support. A better retriever does not fix
+that. It sharpens it.
+
+### What is still missed by both
+
+q01 asks who the authors are; q15 asks what happens when the number of attention
+heads is varied. Neither backend finds them, which points away from the
+embedding and towards chunk size, k, or the fact that page 1 is mostly a block
+of names and affiliations that no prose question resembles. That is a separate
+fix and it is not one a different model would make.
 
 ## What was verified, and where
 

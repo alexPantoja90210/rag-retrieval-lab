@@ -317,3 +317,14 @@ is the honest version of the claim.
 
 Forked from Thomas Janssen's MIT-licensed tutorial. See `NOTICE` and `LICENSE`.
 Tracked as IA-134.
+
+## Errata
+
+`ERRATA.md` records corrections to this repository's published history. Nothing
+there is edited out of the history it corrects, because a commit's hash is the
+evidence recorded against its issue.
+
+Currently one entry: five commit messages cite Jira keys that did not exist when
+they were written, and the citation gate work is referenced throughout as IA-151
+when it is IA-149. If you are following a key out of a commit message and it
+goes nowhere, start there.

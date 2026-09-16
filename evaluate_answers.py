@@ -160,18 +160,33 @@ def main() -> int:
     for arm in arms:
         g_ok = [r for r in scorable
                 if (pick("grounded", r["id"], arm) or {}).get("correct")]
-        leaked = [r for r in g_ok
+        # A leak is a CORRECT ANSWER UNDER SABOTAGE. Full stop.
+        #
+        # The first version required the question to also be correct when
+        # grounded, which silently excluded the purest case there is: answering
+        # correctly from passages that cannot contain the answer, having
+        # declined when shown the passages that can. That is doing worse with
+        # the right evidence than with the wrong evidence, and it can only come
+        # from memory. The metric was blind to exactly the instance it was
+        # built to catch, and the first three-arm run contained one. IA-147.
+        leaked = [r for r in scorable
                   if (pick("sabotaged", r["id"], arm) or {}).get("correct")]
+        leaked_only_sabotaged = [r for r in leaked if r not in g_ok]
         dec = [r for r in answerable
                if (pick("sabotaged", r["id"], arm) or {}).get("abstained")]
         und = [r for r in rows if not r["pages"]
                and (pick("grounded", r["id"], arm) or {"abstained": False})["abstained"]]
         n_un = len([r for r in rows if not r["pages"]])
-        rate = (len(leaked) / len(g_ok)) if g_ok else 0.0
+        # Denominator is the scorable questions, not the ones it happened to
+        # get right when grounded, so the rate cannot be improved by getting
+        # more questions wrong.
+        rate = len(leaked) / len(scorable) if scorable else 0.0
         summary[arm] = {"correct": len(g_ok), "leaked": len(leaked),
                         "leak_rate": rate, "declined_sabotage": len(dec),
                         "unanswerable_declined": len(und),
-                        "leaked_ids": [r["id"] for r in leaked]}
+                        "leaked_ids": [r["id"] for r in leaked],
+                        "leaked_while_failing_when_grounded":
+                            [r["id"] for r in leaked_only_sabotaged]}
         print(f"{arm:<24} {len(g_ok):>3}/{len(scorable):<4} {len(leaked):>8} "
               f"{rate:>9.0%} {len(dec):>10}/{len(answerable):<3} "
               f"{len(und):>11}/{n_un}")
@@ -179,6 +194,11 @@ def main() -> int:
         if summary[arm]["leaked_ids"]:
             print(f"\n  {arm}: answered from memory on "
                   + ", ".join(summary[arm]["leaked_ids"]))
+        worse = summary[arm]["leaked_while_failing_when_grounded"]
+        if worse:
+            print(f"    of those, {', '.join(worse)} were answered correctly with "
+                  f"the WRONG passages and declined with the right ones,")
+            print(f"    which is the strongest form the evidence takes.")
 
     print("\nNote: 'leaked' means ANSWERED CORRECTLY while shown passages that")
     print("cannot contain the answer. It is measured by the answer_contains check,")

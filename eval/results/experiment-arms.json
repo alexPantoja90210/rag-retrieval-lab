@@ -1,0 +1,2056 @@
+{
+  "model": "claude-haiku-4-5",
+  "backend": "minilm",
+  "k": 5,
+  "threshold": null,
+  "spent_usd": 0.1985,
+  "arms": [
+    "grounded",
+    "reference",
+    "reference-plus-abstain"
+  ],
+  "summary": {
+    "grounded": {
+      "correct": 7,
+      "leaked": 0,
+      "leak_rate": 0.0,
+      "declined_sabotage": 15,
+      "unanswerable_declined": 6,
+      "leaked_ids": []
+    },
+    "reference": {
+      "correct": 8,
+      "leaked": 0,
+      "leak_rate": 0.0,
+      "declined_sabotage": 0,
+      "unanswerable_declined": 0,
+      "leaked_ids": []
+    },
+    "reference-plus-abstain": {
+      "correct": 7,
+      "leaked": 0,
+      "leak_rate": 0.0,
+      "declined_sabotage": 15,
+      "unanswerable_declined": 6,
+      "leaked_ids": []
+    }
+  },
+  "results": [
+    {
+      "id": "q01",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about the authors of the paper or their affiliated organizations. While the passages are from \"NIPS-2017-attention-is-all-you-need-Paper.pdf,\" the specific excerpts shown only include table data, references, and technical conten",
+      "pages_shown": [
+        9,
+        10,
+        2,
+        11,
+        10
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.0023220000000000003
+    },
+    {
+      "id": "q02",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided describe what the Transformer includes (stacked self-attention, feed-forward layers, residual connections, layer normalization) and how it compares to other models, but they do not explicitly state what the Transformer \"dispenses with entirely.\"",
+      "pages_shown": [
+        2,
+        9,
+        3,
+        8,
+        2
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.0021420000000000002
+    },
+    {
+      "id": "q03",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "According to the passages, the encoder is composed of a stack of N = 6 identical layers, and the decoder is also composed of a stack of N = 6 identical layers [NIPS-2017-attention-is-all-you-need-Paper.pdf p.3].",
+      "pages_shown": [
+        7,
+        3,
+        2,
+        6,
+        5
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001635
+    },
+    {
+      "id": "q04",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "All sub-layers in the model, as well as the embedding layers, produce outputs of dimension dmodel = 512. [NIPS-2017-attention-is-all-you-need-Paper.pdf p.3]",
+      "pages_shown": [
+        7,
+        5,
+        3,
+        6,
+        3
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001605
+    },
+    {
+      "id": "q05",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Scaled dot-product attention is computed using the following formula:\n\nAttention(Q,K,V) = softmax(QK^T / \u221ad_k)V\n\nThe process involves: computing the dot products of the query matrix Q with all keys in matrix K, dividing each dot product by \u221ad_k (where d_k is the key dimension), applying a softmax fu",
+      "pages_shown": [
+        3,
+        4,
+        4,
+        3,
+        4
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.00189
+    },
+    {
+      "id": "q06",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "The dot products are divided by \u221adk to counteract the problem of dot products growing large in magnitude for larger values of dk. When dot products become large, they push the softmax function into regions where it has extremely small gradients, which impairs learning. [NIPS-2017-attention-is-all-yo",
+      "pages_shown": [
+        3,
+        4,
+        4,
+        4,
+        4
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.001529
+    },
+    {
+      "id": "q07",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "The model uses h = 8 parallel attention heads [NIPS-2017-attention-is-all-you-need-Paper.pdf p.5]. For each head, dk = dv = dmodel/h = 64, keeping the total computational cost similar to single-head attention with full dimensionality [NIPS-2017-attention-is-all-you-need-Paper.pdf p.5].",
+      "pages_shown": [
+        5,
+        8,
+        4,
+        2,
+        4
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.00184
+    },
+    {
+      "id": "q08",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "According to the passage, the Transformer uses multi-head attention in three different ways, but only one is explicitly described in the provided text:\n\n1. **Encoder-decoder attention layers**: \"the queries come from the previous decoder layer, and the memory keys and values come from the output of ",
+      "pages_shown": [
+        5,
+        2,
+        3,
+        4,
+        2
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.002102
+    },
+    {
+      "id": "q09",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Self-attention has a per-layer complexity of O(n\u00b2 \u00b7 d), while recurrent layers have a per-layer complexity of O(n \u00b7 d\u00b2) [NIPS-2017-attention-is-all-you-need-Paper.pdf p.6]. Self-attention is faster than recurrent layers when the sequence length n is smaller than the representation dimensionality d, ",
+      "pages_shown": [
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.0020020000000000003
+    },
+    {
+      "id": "q10",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages describe that positional encodings are added to input embeddings to inject information about token positions [NIPS-2017-attention-is-all-you-need-Paper.pdf p.5], but they do not specify what kind of function is used to compute these positional encodings.",
+      "pages_shown": [
+        5,
+        5,
+        3,
+        5,
+        2
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.0015550000000000002
+    },
+    {
+      "id": "q11",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "The Adam optimizer was used for training with parameters \u03b21 = 0.9, \u03b22 = 0.98, and \u03f5 = 10\u207b\u2079 [NIPS-2017-attention-is-all-you-need-Paper.pdf page 7]. The learning rate was varied according to the formula: lrate = d\u207b\u2070\u00b7\u2075_model \u00b7 min(step_num\u207b\u2070\u00b7\u2075, step_num \u00b7 warmup_steps\u207b\u00b9\u00b7\u2075), which increased the learning",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0025369999999999998
+    },
+    {
+      "id": "q12",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "The Transformer models were trained on one machine with 8 NVIDIA P100 GPUs [NIPS-2017-attention-is-all-you-need-Paper.pdf p.7]. The base models were trained for 100,000 steps or 12 hours, while the big models were trained for 300,000 steps or 3.5 days [NIPS-2017-attention-is-all-you-need-Paper.pdf p",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        8,
+        9
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.00217
+    },
+    {
+      "id": "q13",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "The big model achieves a BLEU score of 28.4 on the WMT 2014 English-to-German translation task [NIPS-2017-attention-is-all-you-need-Paper.pdf p.8].",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        9,
+        8
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.0022719999999999997
+    },
+    {
+      "id": "q14",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages describe regularization techniques applied during training, including residual dropout applied to sub-layer outputs [NIPS-2017-attention-is-all-you-need-Paper.pdf page=\"7\"], but they do not specifically address what regularization was applied to the output distrib",
+      "pages_shown": [
+        7,
+        5,
+        2,
+        8,
+        11
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.0019069999999999998
+    },
+    {
+      "id": "q15",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "According to the passages, when the number of attention heads is varied while keeping computation constant, quality drops off at the extremes: \"single-head attention is 0.9 BLEU worse than the best setting, quality also drops off with too many heads.\" [NIPS-2017-attention-is-all-you-need-Paper.pdf p",
+      "pages_shown": [
+        8,
+        4,
+        5,
+        4,
+        4
+      ],
+      "expected_pages": [
+        9
+      ],
+      "usd": 0.001984
+    },
+    {
+      "id": "u01",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided discuss the Transformer model's performance on English-to-German and English-to-French translation tasks, but contain no information about English-to-Spanish translation results.",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.002068
+    },
+    {
+      "id": "u02",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided are from the \"Attention is All You Need\" paper about the Transformer model, not about BERT. While the passages discuss learning rate scheduling for the Transformer model, they contain no information about BERT's fine-tuning learning rates.",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.001719
+    },
+    {
+      "id": "u03",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided are from the \"Attention Is All You Need\" paper about the Transformer architecture and do not contain any information about GPT-4 or its parameters.",
+      "pages_shown": [
+        9,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.001861
+    },
+    {
+      "id": "u04",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided discuss the Transformer model's performance on machine translation tasks (WMT 2014 English-to-German and English-to-French), but contain no information about ImageNet classification or top-1 accuracy on that benchmark.",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.001705
+    },
+    {
+      "id": "u05",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided are from the \"Attention is All You Need\" paper (NIPS 2017) and contain no information about S3 bucket policies, CloudFront, or AWS services.",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [],
+      "usd": 0.0015
+    },
+    {
+      "id": "u06",
+      "arm": "grounded",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        8,
+        9,
+        7,
+        8,
+        6
+      ],
+      "expected_pages": [],
+      "usd": 0.002046
+    },
+    {
+      "id": "q01",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about the authors of the paper or their affiliated organizations.",
+      "pages_shown": [
+        5,
+        2,
+        3,
+        4,
+        2
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.001526
+    },
+    {
+      "id": "q02",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided discuss why self-attention is used and comparisons between different layer types, but they do not explicitly state what the Transformer \"dispenses with entirely.\" While the passages compare self-attention to recurrent and convolutional layers, they do not",
+      "pages_shown": [
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.001732
+    },
+    {
+      "id": "q03",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about how many identical layers are stacked in the encoder and decoder of the Transformer model.",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001772
+    },
+    {
+      "id": "q04",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided discuss various training details of the Transformer model, including optimizer settings, regularization techniques, and results, but they do not specify the output dimension of sub-layers and embedding layers.",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001841
+    },
+    {
+      "id": "q05",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided discuss training details, hyperparameters, and results for the Transformer model, but they do not contain an explanation of how scaled dot-product attention is computed from queries, keys, and values.",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        8,
+        9
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.0018780000000000001
+    },
+    {
+      "id": "q06",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information explaining why dot products are divided by the square root of the key dimension. While the passages discuss the Transformer model's performance on machine translation tasks and various architectural configurations, they do not a",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        9,
+        8
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.002294
+    },
+    {
+      "id": "q07",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about the number of parallel attention heads used by the model.",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.001966
+    },
+    {
+      "id": "q08",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided discuss the Transformer model's performance on machine translation tasks and some training details, but they do not contain information about the three different ways the Transformer applies multi-head attention.",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.002071
+    },
+    {
+      "id": "q09",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided discuss the Transformer model's performance on machine translation tasks and mention that experiments show these models to be \"more parallelizable and requiring significantly less time to train\" compared to recurrent approaches, but they do not contain a ",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.002199
+    },
+    {
+      "id": "q10",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about the function used to encode the position of a token. While the passages discuss training procedures, optimization, and model variations, they do not describe positional encoding mechanisms.",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.001652
+    },
+    {
+      "id": "q11",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about which optimizer was used for training or how the learning rate was varied.",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.001394
+    },
+    {
+      "id": "q12",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about what hardware the model was trained on or for how long the training took.",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.001397
+    },
+    {
+      "id": "q13",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about BLEU scores for English-to-German translation achieved by any model.",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.001408
+    },
+    {
+      "id": "q14",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about what regularization was applied to the output distribution during training. While passage 1 shows a table with various hyperparameters including dropout (Pdrop) and label smoothing (\u03f5ls), the passages do not explain how re",
+      "pages_shown": [
+        9,
+        10,
+        2,
+        11,
+        10
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.00227
+    },
+    {
+      "id": "q15",
+      "arm": "grounded",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe passages provided do not contain information about how varying the number of attention heads affects model quality. While the passages discuss the Transformer architecture and mention \"multi-head self-attention,\" they do not present any analysis, experiments, or results co",
+      "pages_shown": [
+        7,
+        3,
+        2,
+        6,
+        5
+      ],
+      "expected_pages": [
+        9
+      ],
+      "usd": 0.001634
+    },
+    {
+      "id": "q01",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": false,
+      "text": "I cannot answer this question based on the provided passages. While the passages are from the \"Attention is All You Need\" paper (NIPS-2017), they contain only references, tables, and technical content from the paper's body. The passages do not include the author information or their affiliated organ",
+      "pages_shown": [
+        9,
+        10,
+        2,
+        11,
+        10
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.002187
+    },
+    {
+      "id": "q02",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Based on the provided passages, the paper does not explicitly state what the Transformer \"dispenses with entirely\" in these excerpts.\n\nHowever, the passages do indicate that the Transformer differs from previous approaches in its computational approach. Passage 5 mentions that in previous models lik",
+      "pages_shown": [
+        2,
+        9,
+        3,
+        8,
+        2
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.002657
+    },
+    {
+      "id": "q03",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Based on the provided passages, both the encoder and decoder are composed of a stack of **N = 6 identical layers**.\n\nThis is stated explicitly in passage 3: \"The encoder is composed of a stack of N = 6 identical layers\" and \"The decoder is also composed of a stack of N = 6 identical layers\" (from pa",
+      "pages_shown": [
+        7,
+        3,
+        2,
+        6,
+        5
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001595
+    },
+    {
+      "id": "q04",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "According to the provided passages, all sub-layers in the model, as well as the embedding layers, produce outputs of dimension **dmodel = 512**.",
+      "pages_shown": [
+        7,
+        5,
+        3,
+        6,
+        3
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.0014
+    },
+    {
+      "id": "q05",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Based on the provided knowledge, Scaled Dot-Product Attention is computed using the following formula:\n\n**Attention(Q,K,V) = softmax(QK^T / \u221ad_k)V**\n\nWhere:\n- **Q** is a matrix of queries\n- **K** is a matrix of keys\n- **V** is a matrix of values\n- **d_k** is the dimension of the queries and keys\n\nTh",
+      "pages_shown": [
+        3,
+        4,
+        4,
+        3,
+        4
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.00233
+    },
+    {
+      "id": "q06",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "# Why Dot Products are Divided by \u221adk\n\nAccording to the passages, the dot products are divided by \u221adk (the square root of the key dimension) to counteract a problem that occurs with larger key dimensions.\n\nSpecifically:\n\n1. **The Problem**: When the key dimension (dk) is large, the dot products betw",
+      "pages_shown": [
+        3,
+        4,
+        4,
+        4,
+        4
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.002269
+    },
+    {
+      "id": "q07",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "According to the passage, the model employs **h = 8 parallel attention heads**.\n\nFor each of these heads, the dimensions are set to dk = dv = dmodel/h = 64, which means the reduced dimension of each head results in a total computational cost similar to that of single-head attention with full dimensi",
+      "pages_shown": [
+        5,
+        8,
+        4,
+        2,
+        4
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.001615
+    },
+    {
+      "id": "q08",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "# Three Applications of Multi-Head Attention in the Transformer\n\nAccording to the provided passage, the Transformer uses multi-head attention in three different ways:\n\n1. **Encoder-Decoder Attention**: The queries come from the previous decoder layer, while the memory keys and values come from the o",
+      "pages_shown": [
+        5,
+        2,
+        3,
+        4,
+        2
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.0025069999999999997
+    },
+    {
+      "id": "q09",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided information, the per-layer complexity of self-attention compared to a recurrent layer is:\n\n- **Self-Attention**: O(n\u00b2 \u00b7 d)\n- **Recurrent**: O(n \u00b7 d\u00b2)\n\nAccording to the passage, self-attention layers are faster than recurrent layers when the sequence length *n* is smaller than t",
+      "pages_shown": [
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.002137
+    },
+    {
+      "id": "q10",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, the documents mention that \"positional encodings\" are added to the input embeddings to inject information about the relative or absolute position of tokens in the sequence. However, the specific functional form of how these positional encodings are computed is not det",
+      "pages_shown": [
+        5,
+        5,
+        3,
+        5,
+        2
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.001645
+    },
+    {
+      "id": "q11",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "# Optimizer and Learning Rate Schedule\n\nBased on the provided passages, the following information about the optimizer and learning rate is available:\n\n## Optimizer\nThe **Adam optimizer** was used for training with the following hyperparameters:\n- \u03b2\u2081 = 0.9\n- \u03b2\u2082 = 0.98\n- \u03b5 = 10\u207b\u2079\n\n## Learning Rate Sch",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0025970000000000003
+    },
+    {
+      "id": "q12",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Based on the provided passage, the Transformer model was trained on the following hardware and schedule:\n\n**Hardware:**\n- One machine with 8 NVIDIA P100 GPUs\n\n**Training Duration:**\n- **Base models**: 100,000 steps taking approximately 0.4 seconds per step, totaling **12 hours**\n- **Big models**: 30",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        8,
+        9
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.002035
+    },
+    {
+      "id": "q13",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "According to the provided passages, the big Transformer model achieves a BLEU score of **28.4** on the WMT 2014 English-to-German translation task.",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        9,
+        8
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.002077
+    },
+    {
+      "id": "q14",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, the document does not explicitly specify what regularization was applied to the output distribution during training.\n\nThe passages mention that three types of regularization were employed during training, including Residual Dropout (applied to the output of each sub-l",
+      "pages_shown": [
+        7,
+        5,
+        2,
+        8,
+        11
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.002032
+    },
+    {
+      "id": "q15",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided knowledge, when the number of attention heads is varied:\n\n- **Single-head attention** performs worse, being 0.9 BLEU points worse than the best setting\n- **Too many heads** also cause quality to drop off\n\nThe research found an optimal number of attention heads. In their specifi",
+      "pages_shown": [
+        8,
+        4,
+        5,
+        4,
+        4
+      ],
+      "expected_pages": [
+        9
+      ],
+      "usd": 0.001934
+    },
+    {
+      "id": "u01",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided passages, there is no information about the model's BLEU score on English-to-Spanish translation. The passages only report results for two translation tasks:\n\n1. English-to-German (WMT 2014): BLEU score of 28.4\n2. English-to-French (WMT 2014): BLEU score of 41.0\n\nEnglish-to-Spa",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.002248
+    },
+    {
+      "id": "u02",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "I cannot answer this question based on the provided passages. The passages are from the \"Attention is All You Need\" paper (NIPS 2017), which describes the Transformer model and its training procedures. They do not contain any information about BERT or its fine-tuning learning rates.\n\nTo answer your ",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.001759
+    },
+    {
+      "id": "u03",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "I cannot answer this question based on the provided knowledge. The passages are from the \"Attention Is All You Need\" paper (NIPS 2017), which discusses the Transformer architecture and its variants. They do not contain any information about GPT-4 or its parameters.",
+      "pages_shown": [
+        9,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.001836
+    },
+    {
+      "id": "u04",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided passages, I cannot answer your question about ImageNet classification top-1 accuracy. The passages only discuss the Transformer model's performance on machine translation tasks (English-to-German and English-to-French), not on ImageNet image classification. There is no informat",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.001645
+    },
+    {
+      "id": "u05",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "I don't have information about S3 bucket policies or CloudFront in the provided knowledge base. The available passages are from the \"Attention Is All You Need\" paper from NIPS 2017, which discusses neural network architectures like the Transformer model, attention mechanisms, and sequence modeling -",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [],
+      "usd": 0.0017
+    },
+    {
+      "id": "u06",
+      "arm": "reference",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "I cannot answer this question based on the provided knowledge. The passages contain information about the Transformer model for machine translation tasks, including details about its architecture, training procedures, and performance metrics. They do not contain any information about baking sourdoug",
+      "pages_shown": [
+        8,
+        9,
+        7,
+        8,
+        6
+      ],
+      "expected_pages": [],
+      "usd": 0.002351
+    },
+    {
+      "id": "q01",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "I cannot answer this question based on the provided passages. The passages contain technical content from the \"Attention Is All You Need\" paper (NIPS-2017), but they do not include information about the authors or their organizational affiliations. To find this information, you would need to check t",
+      "pages_shown": [
+        5,
+        2,
+        3,
+        4,
+        2
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.0016510000000000001
+    },
+    {
+      "id": "q02",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, the paper does not explicitly state what the Transformer \"dispenses with entirely\" in these excerpts. \n\nHowever, the passages do discuss comparisons between self-attention layers and other layer types (recurrent and convolutional layers) commonly used for sequence tra",
+      "pages_shown": [
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.001897
+    },
+    {
+      "id": "q03",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "I cannot find information in the provided passages about how many identical layers are stacked in the encoder and decoder. The passages focus on training details, optimization, regularization, and results, but do not specify the number of stacked layers in the encoder and decoder architecture.",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.0017720000000000001
+    },
+    {
+      "id": "q04",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, I cannot find information about what output dimension all sub-layers and embedding layers produce. The passages discuss training procedures, optimization, regularization techniques, and model performance results, but they do not specify the output dimensions of sub-la",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001781
+    },
+    {
+      "id": "q05",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, I don't have information that explains how scaled dot-product attention is computed from queries, keys, and values. The passages focus on training details, hyperparameters, optimization methods, and results for the Transformer model, but they don't contain the specifi",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        8,
+        9
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.001978
+    },
+    {
+      "id": "q06",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": null,
+      "text": "I cannot answer this question based on the provided knowledge. The passages discuss the Transformer model's machine translation results, training costs, and various hyperparameter configurations, but they do not contain information about why dot products are divided by the square root of the key dim",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        9,
+        8
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.002259
+    },
+    {
+      "id": "q07",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, I cannot find information about the number of parallel attention heads used by the model. While the passages discuss the Transformer model's performance on machine translation tasks and mention various training details, they do not specify the number of attention head",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.002006
+    },
+    {
+      "id": "q08",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": null,
+      "text": "I cannot answer this question based on the provided passages. While the passages discuss the Transformer model's performance on machine translation tasks and mention results achieved with multi-head attention, they do not contain information about the three different ways the Transformer applies mul",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.002171
+    },
+    {
+      "id": "q09",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": null,
+      "text": "I cannot find information in the provided passages that directly compares the per-layer complexity of self-attention with a recurrent layer. \n\nThe passages focus on the Transformer model's performance results on machine translation tasks (BLEU scores and training costs) but do not contain a detailed",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.002249
+    },
+    {
+      "id": "q10",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, there is no information about the function used to encode the position of a token. The passages discuss training data, batching, hardware setup, the optimizer used, regularization techniques, and model variations, but they do not contain details about positional encod",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.001717
+    },
+    {
+      "id": "q11",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, I cannot find information about which optimizer was used for training or how the learning rate was varied. The passages provided focus on the architectural aspects of the model (such as recurrent models, attention mechanisms, and the Transformer architecture) and impl",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.001624
+    },
+    {
+      "id": "q12",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "Based on the provided passages, I cannot find information about what hardware the model was trained on or for how long. The passages discuss the architecture and design of the model, references, and acknowledgments, but they do not contain details about the training hardware or duration.\n\nTo answer ",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0015119999999999999
+    },
+    {
+      "id": "q13",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": false,
+      "text": "I don't have information about the BLEU score for the big model on English-to-German translation in the provided passages. While the passages are from the \"Attention is All You Need\" paper from NIPS 2017, they focus on the architecture and background of the Transformer model rather than specific eva",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.001588
+    },
+    {
+      "id": "q14",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": true,
+      "text": "Based on the provided passage from the Attention is All You Need paper, the regularisation applied to the output distribution during training was **label smoothing with \u03f5ls = 0.1**.\n\nThis can be seen in Table 3 (passage 1), where \u03f5ls represents the label smoothing parameter, and the base model uses ",
+      "pages_shown": [
+        9,
+        10,
+        2,
+        11,
+        10
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.0024
+    },
+    {
+      "id": "q15",
+      "arm": "reference",
+      "condition": "sabotaged",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided passages, I cannot find information about what happens to quality when the number of attention heads is varied. \n\nThe passages discuss the Transformer architecture, including details about multi-head attention mechanisms, the overall model structure, and various hyperparameters",
+      "pages_shown": [
+        7,
+        3,
+        2,
+        6,
+        5
+      ],
+      "expected_pages": [
+        9
+      ],
+      "usd": 0.0017989999999999998
+    },
+    {
+      "id": "q01",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        9,
+        10,
+        2,
+        11,
+        10
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.001842
+    },
+    {
+      "id": "q02",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe provided passages do not contain information about what the Transformer dispenses with entirely. While the passages discuss the Transformer's architecture, components, and advantages, they do not explicitly state what the model entirely removes or abandons.",
+      "pages_shown": [
+        2,
+        9,
+        3,
+        8,
+        2
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.002012
+    },
+    {
+      "id": "q03",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Based on the provided passages, both the encoder and decoder are composed of a stack of **N = 6 identical layers**.",
+      "pages_shown": [
+        7,
+        3,
+        2,
+        6,
+        5
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.0013599999999999999
+    },
+    {
+      "id": "q04",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "According to the provided knowledge, all sub-layers in the model, as well as the embedding layers, produce outputs of dimension **dmodel = 512**.",
+      "pages_shown": [
+        7,
+        5,
+        3,
+        6,
+        3
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001425
+    },
+    {
+      "id": "q05",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "According to the provided knowledge, Scaled Dot-Product Attention is computed using the following formula:\n\n**Attention(Q,K,V) = softmax(QK^T / \u221ad_k)V**\n\nWhere:\n- **Q** is a matrix of queries\n- **K** is a matrix of keys\n- **V** is a matrix of values\n- **d_k** is the dimension of the queries and keys",
+      "pages_shown": [
+        3,
+        4,
+        4,
+        3,
+        4
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.002325
+    },
+    {
+      "id": "q06",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided knowledge, the dot products are divided by the square root of the key dimension (\u221adk) to counteract the problem of dot products growing large in magnitude for larger values of dk.\n\nSpecifically, when dot products become large, they push the softmax function into regions where i",
+      "pages_shown": [
+        3,
+        4,
+        4,
+        4,
+        4
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.001984
+    },
+    {
+      "id": "q07",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "According to the provided passage, the model uses **h = 8 parallel attention heads**.\n\nFor each of these heads, dk = dv = dmodel/h = 64. The passage notes that due to the reduced dimension of each head, the total computational cost is similar to that of single-head attention with full dimensionality",
+      "pages_shown": [
+        5,
+        8,
+        4,
+        2,
+        4
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.0016350000000000002
+    },
+    {
+      "id": "q08",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided passage, the Transformer uses multi-head attention in three different ways:\n\n1. **Encoder-decoder attention layers**: The queries come from the previous decoder layer, and the memory keys and values come from the output of the encoder. This allows every position in the decoder ",
+      "pages_shown": [
+        5,
+        2,
+        3,
+        4,
+        2
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.001902
+    },
+    {
+      "id": "q09",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided knowledge, the per-layer complexity comparison between self-attention and recurrent layers is as follows:\n\n- **Self-Attention**: O(n\u00b2 \u00b7 d)\n- **Recurrent**: O(n \u00b7 d\u00b2)\n\nWhere n is the sequence length and d is the representation dimensionality.\n\nAccording to the passages, **self-a",
+      "pages_shown": [
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.002102
+    },
+    {
+      "id": "q10",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe provided passages mention that \"positional encodings\" are added to input embeddings and that the model must \"inject some information about the relative or absolute position of the tokens in the sequence,\" but they do not specify what particular function is used to compute ",
+      "pages_shown": [
+        5,
+        5,
+        3,
+        5,
+        2
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.00143
+    },
+    {
+      "id": "q11",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Based on the provided knowledge:\n\n**Optimizer:** The Adam optimizer was used with parameters \u03b21 = 0.9, \u03b22 = 0.98, and \u03f5 = 10\u207b\u2079.\n\n**Learning Rate Variation:** The learning rate was varied over the course of training according to the formula:\n\nlrate = d\u207b\u2070\u00b7\u2075_model \u00b7 min(step_num\u207b\u2070\u00b7\u2075, step_num \u00b7 warmup_",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.002422
+    },
+    {
+      "id": "q12",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Based on the provided passages:\n\n**Hardware:** The models were trained on one machine with 8 NVIDIA P100 GPUs.\n\n**Training Duration:**\n- **Base models:** 100,000 steps taking approximately 12 hours total (with each step taking about 0.4 seconds)\n- **Big models:** 300,000 steps taking 3.5 days total ",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        8,
+        9
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.00203
+    },
+    {
+      "id": "q13",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "According to the provided passages, the big Transformer model achieves a BLEU score of **28.4** on the WMT 2014 English-to-German translation task.",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        9,
+        8
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.002102
+    },
+    {
+      "id": "q14",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        5,
+        2,
+        8,
+        11
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.001502
+    },
+    {
+      "id": "q15",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "Based on the provided knowledge, when the number of attention heads is varied:\n\n- **Single-head attention** performs 0.9 BLEU worse than the best setting\n- **Quality drops off with too many heads** as well\n\nSo there is an optimal number of attention heads. The research found that while a single head",
+      "pages_shown": [
+        8,
+        4,
+        5,
+        4,
+        4
+      ],
+      "expected_pages": [
+        9
+      ],
+      "usd": 0.001854
+    },
+    {
+      "id": "u01",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.001783
+    },
+    {
+      "id": "u02",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.0013540000000000002
+    },
+    {
+      "id": "u03",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        9,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.0015860000000000002
+    },
+    {
+      "id": "u04",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.00135
+    },
+    {
+      "id": "u05",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [],
+      "usd": 0.001195
+    },
+    {
+      "id": "u06",
+      "arm": "reference-plus-abstain",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        8,
+        9,
+        7,
+        8,
+        6
+      ],
+      "expected_pages": [],
+      "usd": 0.001956
+    },
+    {
+      "id": "q01",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        5,
+        2,
+        3,
+        4,
+        2
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.0013410000000000002
+    },
+    {
+      "id": "q02",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe provided passages do not contain information about what the Transformer dispenses with entirely.",
+      "pages_shown": [
+        6,
+        6,
+        6,
+        6,
+        7
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.001372
+    },
+    {
+      "id": "q03",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe provided passages do not contain information about the number of identical layers stacked in the encoder and decoder.",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001657
+    },
+    {
+      "id": "q04",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        7,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.001546
+    },
+    {
+      "id": "q05",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        8,
+        9
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.0015630000000000002
+    },
+    {
+      "id": "q06",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        9,
+        8
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.0019140000000000001
+    },
+    {
+      "id": "q07",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.001776
+    },
+    {
+      "id": "q08",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE\n\nThe provided passages discuss the Transformer model's performance on machine translation tasks and mention label smoothing and training details, but they do not contain information about the three different ways the Transformer applies multi-head attention.",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.002001
+    },
+    {
+      "id": "q09",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        8,
+        1,
+        8,
+        10,
+        8
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.001784
+    },
+    {
+      "id": "q10",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        7,
+        8
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.0013520000000000001
+    },
+    {
+      "id": "q11",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0011890000000000002
+    },
+    {
+      "id": "q12",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0011870000000000001
+    },
+    {
+      "id": "q13",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        2,
+        1,
+        11,
+        2,
+        3
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.001193
+    },
+    {
+      "id": "q14",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        9,
+        10,
+        2,
+        11,
+        10
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.00184
+    },
+    {
+      "id": "q15",
+      "arm": "reference-plus-abstain",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        3,
+        2,
+        6,
+        5
+      ],
+      "expected_pages": [
+        9
+      ],
+      "usd": 0.0012490000000000001
+    }
+  ]
+}

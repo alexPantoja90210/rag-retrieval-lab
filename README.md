@@ -32,6 +32,10 @@ python search.py "how many attention heads does the model use" --backend hashing
 python evaluate_answers.py --backend hashing --model stub             # must leak 0
 python evaluate_answers.py --backend hashing --model stub-memoriser   # must catch all
 
+# re-read anything already run, no key, no spend
+python replay_gate.py eval/results/experiment-final.json   # re-score with the shipped gate
+python check_results.py                                    # does each summary match its rows?
+
 # with a real model
 export ANTHROPIC_API_KEY=...
 python ask.py "how many attention heads does the model use" --max-usd 0.01
@@ -202,7 +206,7 @@ not earning its place.
 `minilm` is `sentence-transformers/all-MiniLM-L6-v2`, downloaded once and then
 local. No API key, no per-query cost, no network at inference.
 
-## Results
+## Results: retrieval
 
 Two backends, same corpus, same question set. 48 chunks from the 11-page paper,
 chunk 900 / overlap 150, k=5, 21 questions of which 6 are unanswerable. Full
@@ -282,6 +286,97 @@ heads is varied. Neither backend finds them, which points away from the
 embedding and towards chunk size, k, or the fact that page 1 is mostly a block
 of names and affiliations that no prose question resembles. That is a separate
 fix and it is not one a different model would make.
+
+## Results: the generation half
+
+Everything above is retrieval. This section is the part the README used to
+describe and never report, which is its own small instance of the defect this
+repository is about: it announced a headline number and did not print it.
+
+`claude-haiku-4-5`, MiniLM backend, k=5, three prompt arms, three repeats. 324
+calls, **$0.5915 measured**, not estimated. Raw output in
+`eval/results/experiment-final.json`.
+
+One variable moves: the system prompt.
+
+| arm | what it says |
+| --- | --- |
+| `grounded` | cite every claim, or reply `INSUFFICIENT EVIDENCE` |
+| `reference` | the forked tutorial's prompt, verbatim, typos included. No way to refuse |
+| `reference-plus-abstain` | the reference prompt plus exactly that refusal token |
+
+| | correct | leaked | declined under sabotage | rejected by the citation gate |
+| --- | --- | --- | --- | --- |
+| `grounded` | 7/11 | **0** | 45/45 | 8/108 |
+| `reference` | 7/11 | **1** (q02, repeat 1) | 0/45 | **108/108** |
+| `reference-plus-abstain` | 7/11 | **0** | 45/45 | 33/108 |
+
+Reproduce both right-hand columns with no API key and no spend:
+
+```bash
+python replay_gate.py eval/results/experiment-final.json   # the gate column
+python check_results.py                                    # summary vs its own rows
+```
+
+### The hypothesis was mine and the data refuted it
+
+The prediction on record was that the reference arm would leak heavily, because
+it forbids using internal knowledge while leaving no way to decline: told to
+answer from passages that cannot answer, a model has one route to producing
+output at all. **It leaked once in 33 scorable question-repeats.** It never
+emitted a refusal token, because it has none, and it still declined in prose
+most of the time.
+
+How often it declined in prose is deliberately not a number here. Counting it
+needs a classifier for free-text refusal, and there isn't one: a regex written
+for the occasion caught 23 of 45 while missing "I cannot answer", "I cannot
+find information" and "I don't see information in the provided passages" in the
+first three rows it was shown. An instrument that bad does not get to produce a
+figure. What is measured is the leak, and the leak is 1.
+
+The wrong prediction is recorded here rather than quietly replaced by the
+result, because a project about unbacked claims does not get to hide its own.
+
+### What the affordance actually buys is auditability
+
+Look at the last column. The reference arm is rejected by the citation gate
+**108 times out of 108**. It is not wrong 108 times. It is **unauditable by
+construction**: its prompt forbids mentioning the supplied knowledge, so it
+cites nothing, so nothing downstream can tell a grounded answer from a
+remembered one. The one real leak is in there, indistinguishable from the 107
+answers that were fine.
+
+`grounded` is rejected 8 times out of 108, and those 8 are findable.
+
+**The prompt does not make the model honest. It makes the model checkable.**
+That conclusion rests on 108 observations rather than on the single leak, which
+is why it is the one worth keeping.
+
+### Our own prompt was not exempt
+
+`grounded` has always said that an uncited claim is a failure, and 8 of its 108
+responses carried no citation while nothing failed. An instruction with no
+mechanism is not a rule. The gate is the mechanism it was missing, and it was
+written after the prompt had been claiming the property for weeks.
+
+### A finding that was retracted
+
+An earlier run had `reference` at 8/11 against `grounded` at 7/11, and a
+paragraph was written about the refusal affordance costing an answer. It was one
+question flipping between runs. The SDK exposes no temperature setting, and 48
+of 63 byte-identical inputs produced different text across two runs. The 8/11 is
+not in the numbers above, and `--repeats` with a per-repeat spread exists so
+that a single sample can never be read as a measurement again.
+
+### What this does not show
+
+One model, one corpus, 11 scorable questions, three repeats. Nothing here
+generalises. The leak count is 1, and a single observation is an anecdote with
+an exit code. The 108/108 auditability result is the robust one.
+
+**And none of it makes the model forget.** The knowledge is in the weights. The
+gate makes using it without support detectable and refusable. Detection and
+incentive, not amnesia.
 
 ## What was verified, and where
 

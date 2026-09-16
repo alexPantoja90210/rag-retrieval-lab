@@ -80,8 +80,21 @@ def main() -> int:
             all(c.metadata.get("source") and c.metadata.get("page", -1) >= 0 for c in chunks),
         )
 
+        # The suite owns its store, so nothing it measures can depend on
+        # RAG_CHROMA_PATH being whatever the last command left in the shell.
+        # Without this, every retrieval assertion below runs against whichever
+        # corpus happens to be pointed at, and most of them stay green while
+        # measuring something else. A test that passes for the wrong reason is
+        # the failure this repository exists to document. IA-160.
+        ambient = common.CHROMA_PATH
+        common.CHROMA_PATH = tmp
+        pinned = common.get_store(BACKEND)._client.get_settings().persist_directory
+        check("the suite retrieves from its own store, not the shell's",
+              str(tmp) in str(pinned) and str(ambient) not in str(pinned),
+              f"{pinned}, not {ambient}")
+
         print("idempotency")
-        store = common.get_store(BACKEND, chroma_path=tmp / "store")
+        store = common.get_store(BACKEND)
         store.add_documents(documents=chunks, ids=ids)
         first = store._collection.count()
         store.add_documents(documents=chunks, ids=ids)

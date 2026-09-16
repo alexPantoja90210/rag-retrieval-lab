@@ -50,8 +50,9 @@ python check_results.py                                    # does each summary m
 # the chat, with no key and nothing spent
 streamlit run app.py           # pick Model: stub-echo in the sidebar
 
-# with a real model
-export ANTHROPIC_API_KEY=...
+# with a real model. See "The API key" below: it is an Anthropic API key,
+# billed separately from a Claude subscription, and it lives in your shell.
+export ANTHROPIC_API_KEY=sk-ant-...        # $env:ANTHROPIC_API_KEY on PowerShell
 python ask.py "how many attention heads does the model use" --max-usd 0.01
 python evaluate_answers.py --backend minilm --model claude-haiku-4-5 \
     --max-usd 0.15 --json-out eval/results/answers-haiku.json
@@ -70,6 +71,50 @@ offline.
 
 No compiler is needed on any platform. Everything above the "with a real
 model" block runs without a key and spends nothing, the chat included.
+
+## The API key
+
+Everything above the "with a real model" line runs without one. This section is
+only for the half that answers with a real model.
+
+**What it is.** An Anthropic API key, created in the Anthropic Console. It is
+**billed separately from a Claude subscription**: a Pro or Team plan does not
+cover API usage and the two are different products. Recorded here because it is
+not obvious and it was almost assumed once.
+
+**Where it goes.** In your shell, and nowhere else.
+
+```powershell
+$env:ANTHROPIC_API_KEY = "sk-ant-..."     # PowerShell, this session only
+```
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...        # bash, zsh
+```
+
+**It is never read from a file here and never committed.** Both halves of that
+sentence are enforced rather than promised. The code obtains it only through
+`os.environ`, in every file, and `.gitignore` covers `.env`, `.env.*`, `*.env`
+and `.envrc` so the most common habit in this language cannot publish it. The
+second half was **not** enforced until IA-167: a `.env` was untracked and one
+`git add -A` from being public, in a repository whose own error message claimed
+otherwise.
+
+**What happens without one.** Nothing breaks and nothing is charged.
+
+- Every free command in the Quick start runs unchanged.
+- The chat refuses the turn, says the variable is missing, and points at
+  `stub-echo`, which needs no key. It does this **before** sending anything.
+- `ask.py` and `evaluate_answers.py` exit with a message.
+
+**What it can cost.** Bounded, and the bound is demonstrable rather than
+claimed. `--max-tokens` caps output per call. `--max-usd` prices the whole run
+before the first request and refuses to start rather than stopping halfway. The
+chat, whose length cannot be known in advance, refuses the **next turn** whose
+worst case does not fit in what is left. Every response's real token counts go
+to `eval/usage-log.jsonl`, which is gitignored, so the next cost question is
+answered by reading a file instead of by estimating. See "Spending is bounded"
+for the numbers.
 
 ## The generation layer, and the test that makes it mean something
 

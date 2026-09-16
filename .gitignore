@@ -25,6 +25,19 @@ chroma*/
 eval/*.json
 !eval/results/*.json
 
+# The API key. generate.py says, when it is missing, that the key "is never
+# read from a file in this repository and never committed". The first half was
+# true of the code and the second half was a claim about git that git was not
+# enforcing: a .env here was untracked and one `git add -A` from being public.
+#
+# Putting a key in .env is the most common habit in this language, and the
+# README told people to set the variable without telling them how, so it is
+# the habit they would reach for. By shape, not by one name. IA-167.
+.env
+.env.*
+*.env
+.envrc
+
 # Real token counts and real money. Local, never committed.
 eval/usage-log.jsonl
 

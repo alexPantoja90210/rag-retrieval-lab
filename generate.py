@@ -190,7 +190,7 @@ class AnthropicModel:
         # against the SDK's own signature without making a call. A previous
         # version asserted that the string "temperature=temperature" appeared
         # in this function's source, which passed while the call was invalid:
-        # it checked for the presence of a word, not for a contract. IA-149.
+        # it checked for the presence of a word, not for a contract. IA-148.
         kwargs = self.send_kwargs(prompt, system, max_tokens)
         resp = client.messages.create(**kwargs)
         text = "".join(b.text for b in resp.content if b.type == "text").strip()

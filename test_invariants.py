@@ -226,7 +226,7 @@ def main() -> int:
         check("an empty donor is rejected", not ea2.is_pure_sabotage([], row))
 
         import inspect as _i
-        print("the outgoing API call binds against the real SDK (IA-149)")
+        print("the outgoing API call binds against the real SDK (IA-148)")
         # The previous version of this section asserted that the string
         # "temperature=temperature" appeared in the source of the call site. It
         # passed while the call was invalid, because anthropic 1.6.0 removed the
@@ -260,7 +260,7 @@ def main() -> int:
         check("there is no temperature setting to pretend to pin",
               not hasattr(common, "TEMPERATURE"))
 
-        print("citation gate (levels 1 and 2)")
+        print("citation gate, levels 1 and 2 (IA-149)")
         from generate import Passage as _PG, check_citations as _cc
         shown = [_PG("d.pdf", 6, .5, "t", 0, "a"), _PG("d.pdf", 7, .5, "t", 1, "b")]
         check("an answer citing a supplied page is accepted",

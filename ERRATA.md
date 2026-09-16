@@ -49,3 +49,42 @@ outgoing commits and fails on any key the board does not know.
 **It is not built.** It is recorded as not built, on IA-151, rather than being
 described as future work with no issue behind it. A guard that is only
 described is exactly the failure mode named above.
+
+---
+
+## E2. The erratum for E1 was itself incomplete
+
+**Raised on IA-151, reopened. Discovered by the PO pasting the test output.**
+
+E1 mapped five commit messages, the Confluence runbook and the Jira board. It
+did not cover the source code, which carries the same wrong key in two places:
+
+| File | Was | Is |
+| --- | --- | --- |
+| `test_invariants.py` | `the outgoing API call binds against the real SDK (IA-149)` | IA-148 |
+| `generate.py` | `it checked for the presence of a word, not for a contract. IA-149.` | IA-148 |
+
+The first of those **prints on screen every time the suite runs**. It was the
+most visible copy of the wrong reference in the entire project, and the erratum
+that set out to find every copy missed it, because the search was done by
+remembering where the key had been written rather than by grepping for it.
+
+An erratum that misses the most visible instance of the thing it corrects is the
+same defect one level up: a claim of completeness with no mechanism behind it.
+E1's own wording, "the full mapping for anyone who has the repo", was not true
+when it was written.
+
+The remaining `IA-149` in `generate.py` is correct: it labels the citation gate,
+which is what IA-149 is. `test_invariants.py` now labels that section with the
+key too, so the gate and the SDK contract are no longer distinguishable only by
+reading the code around them.
+
+### How it was found, and what that says
+
+Not by a check. The PO ran `python test_invariants.py` because the previous
+answer asked him to confirm the 63 assertions, and the wrong key was sitting in
+line 229 of the output. The pre-push hook named in E1 as not built would not
+have caught this either: it validates keys that exist, and IA-149 exists. The
+check that would have caught it is a grep of the working tree, which is what E1
+should have run and did not.
+

@@ -252,8 +252,17 @@ def main() -> int:
                            if x["id"] == r["id"] and x["arm"] == arm
                            and x["condition"] == "sabotaged" and x["repeat"] == rep))
             per_rep.append(n)
+        # The union across repeats, not one sample. pick() returns the first
+        # matching row, so with --repeats this column reported repeat 0 and
+        # silently dropped the rest. The final three-repeat run leaked once, in
+        # repeat 1 of the reference arm, and the headline said zero while the
+        # per-repeat detail printed [0, 1, 0] right next to it. Third time this
+        # family of bug has appeared: a summary computed on a sample of the
+        # thing it claims to summarise. IA-150.
         leaked = [r for r in scorable
-                  if (pick("sabotaged", r["id"], arm) or {}).get("correct")]
+                  if any(x["correct"] for x in results
+                         if x["id"] == r["id"] and x["arm"] == arm
+                         and x["condition"] == "sabotaged")]
         leaked_only_sabotaged = [r for r in leaked if r not in g_ok]
         dec = [r for r in answerable
                if (pick("sabotaged", r["id"], arm) or {}).get("abstained")]
@@ -270,7 +279,9 @@ def main() -> int:
                         "leaked_ids": [r["id"] for r in leaked],
                         "leaked_while_failing_when_grounded":
                             [r["id"] for r in leaked_only_sabotaged]}
-        spread = f"  per repeat {per_rep}" if args.repeats > 1 else ""
+        # Printed even at one repeat, so a reader can never mistake a single
+        # sample for a measurement.
+        spread = f"  per repeat {per_rep}"
         print(f"{arm:<24} {len(g_ok):>3}/{len(scorable):<4} {len(leaked):>8} "
               f"{rate:>9.0%} {len(dec):>10}/{len(answerable):<3} "
               f"{len(und):>11}/{n_un}{spread}")

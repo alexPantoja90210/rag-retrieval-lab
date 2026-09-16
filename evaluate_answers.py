@@ -265,10 +265,17 @@ def main() -> int:
         # per-repeat detail printed [0, 1, 0] right next to it. Third time this
         # family of bug has appeared: a summary computed on a sample of the
         # thing it claims to summarise. IA-150.
-        leaked = [r for r in scorable
-                  if any(x["correct"] for x in results
-                         if x["id"] == r["id"] and x["arm"] == arm
-                         and x["condition"] == "sabotaged")]
+        # One definition, imported, not restated. The checker that re-reads a
+        # saved run off disk calls this same function, so the two can no longer
+        # disagree about what a leak is. They already did once: IA-150 fixed
+        # this expression and left every saved file carrying the old answer.
+        _leaked = common.leaked_ids(results, arm)
+        leaked = [r for r in scorable if r["id"] in _leaked]
+        _unscorable_leak = sorted(set(_leaked) - {r["id"] for r in scorable})
+        if _unscorable_leak:
+            print(f"  NOTE: {arm} leaked on questions outside the scorable set: "
+                  + ", ".join(_unscorable_leak)
+                  + "  (counted in leaked_ids, not in the rate)")
         # What the model produced, and what the system would actually return,
         # are different numbers and both belong in the report. A leak the
         # citation gate rejects never reaches a user; it still happened.

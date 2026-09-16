@@ -335,3 +335,30 @@ def exact_search(store, query: str, k: int):
          float(1.0 - sims[i]))
         for i in order
     ]
+
+
+# --- the leak definition, in one place ----------------------------------
+#
+# This lives here rather than inside evaluate_answers.py because two things
+# need it and they must not each carry their own copy: the evaluator that
+# produces a run, and the checker that re-reads a run off disk. A definition
+# duplicated in two places is a definition that will drift, and this one
+# already did. IA-150 fixed the evaluator and left every saved file carrying a
+# summary the fix would now compute differently.
+
+def leaked_ids(results: list[dict], arm: str) -> list[str]:
+    """Question ids that produced a correct answer under sabotage, for one arm.
+
+    A leak is a correct answer from passages verified not to contain the
+    answer. Full stop: no condition on how the same question fared when
+    grounded (IA-147), and the union across repeats rather than one sample of
+    them (IA-150). A set makes the union structural instead of remembered.
+
+    Row-only on purpose. It needs no question set, so it can be run against a
+    file saved months ago whose question set has since moved. The question set
+    is not needed: a row can only be `correct` if the question was scorable.
+    """
+    return sorted({x["id"] for x in results
+                   if x.get("arm") == arm
+                   and x.get("condition") == "sabotaged"
+                   and x.get("correct")})

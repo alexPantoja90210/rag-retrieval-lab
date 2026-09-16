@@ -302,6 +302,44 @@ def main() -> int:
         check("exact search carries the same metadata as the index path",
               all(p.chunk_id and p.page >= 0 for p in e_))
 
+        print("a saved summary agrees with its own rows (IA-152)")
+        import json as _json
+        import check_results as _cr
+        # The real files. This assertion failed on two of them the day it was
+        # written, which is the only reason to trust it now.
+        _stale = []
+        for _f in sorted(Path("eval/results").glob("*.json")):
+            _stale.extend(_cr.check_file(_f))
+        check("no shipped results file contradicts itself",
+              not _stale,
+              f"{len(_stale)} disagreement(s)" if _stale else "all consistent")
+
+        # The control. A checker that has only ever been shown consistent files
+        # cannot be distinguished from one that returns nothing. So: build a
+        # file whose rows contain a leak and whose summary denies it, and
+        # require the checker to say so.
+        _rows = [{"id": "qX", "arm": "a", "condition": "sabotaged",
+                  "correct": True, "repeat": 0},
+                 {"id": "qX", "arm": "a", "condition": "grounded",
+                  "correct": False, "repeat": 0}]
+        _bad = Path(tmp) / "drifted.json"
+        _bad.write_text(_json.dumps(
+            {"arms": ["a"], "results": _rows,
+             "summary": {"a": {"leaked": 0, "leak_rate": 0.0,
+                               "leaked_ids": []}}}, indent=2), encoding="utf-8")
+        check("the control fails on a summary that denies its own rows",
+              len(_cr.check_file(_bad)) == 3,
+              "leaked, leak_rate and leaked_ids all caught")
+
+        # And the other direction, so it is not simply always angry.
+        _ok = Path(tmp) / "consistent.json"
+        _ok.write_text(_json.dumps(
+            {"arms": ["a"], "results": _rows,
+             "summary": {"a": {"leaked": 1, "leak_rate": 1.0,
+                               "leaked_ids": ["qX"]}}}, indent=2), encoding="utf-8")
+        check("and passes the same file once the summary tells the truth",
+              _cr.check_file(_ok) == [])
+
         print("question set")
         qs = load_questions(Path("eval/attention-paper.questions.jsonl"))
         check("the set contains unanswerable questions",

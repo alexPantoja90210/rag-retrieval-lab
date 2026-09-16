@@ -88,3 +88,52 @@ have caught this either: it validates keys that exist, and IA-149 exists. The
 check that would have caught it is a grep of the working tree, which is what E1
 should have run and did not.
 
+---
+
+## E3. Two shipped results files contradicted their own rows
+
+**Raised as IA-152. Found while writing the generation results section of the
+README, which the README had never had.**
+
+`eval/results/experiment-final.json` is the file the runbook names as the
+evidence for the leak measurement. Its `summary` block said the reference arm
+leaked zero times. Its own 324 rows contain a correct answer under sabotage:
+`reference`, repeat 1, q02. `experiment-arms.json` had the same shape of
+disagreement, at q14.
+
+The rows were right. The summary was stale. It was written before IA-150
+redefined a leak as the union across repeats rather than repeat 0, and nothing
+ever went back to the file. **IA-150 fixed the code and left the artifact.**
+
+So the repository shipped a conclusion and, one directory down, the evidence
+that appeared to refute it. Anyone opening the file to check the runbook would
+have concluded the runbook was wrong.
+
+### What was changed, and what was not
+
+The 324 rows are **byte-identical** to what the paid run produced. That is not a
+promise, it is checkable: compare the `results` array against the previous
+commit. Only three derived fields in one arm moved, and a `summary_recomputed`
+block records the date, the tool and the reason.
+
+The correction was made by `check_results.py --fix`, which calls
+`common.leaked_ids`, the same function the evaluator calls. It is not a second
+implementation of the leak definition written for the occasion. A definition
+kept in two places is a definition that will drift, and this one already had.
+
+### The mechanism, which is the actual deliverable
+
+`check_results.py` re-derives the summary from the rows and reports every
+disagreement. `test_invariants.py` runs it over every shipped results file, and
+the assertion **failed on two of them the day it was written**, which is the
+only reason to trust it now. A control builds a file whose summary denies its
+own rows and requires the checker to catch all three fields, plus the inverse
+case so the checker is not simply always angry.
+
+### The pattern, stated plainly
+
+E1 was a commit citing an issue that did not exist. E2 was an erratum that
+missed the most visible copy of what it was correcting. E3 is a summary that
+outlived the definition it was computed with. All three are the same thing: a
+derived artifact that stopped tracking its source and nothing noticed, because
+nothing was watching.

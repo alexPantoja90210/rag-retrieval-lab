@@ -10,7 +10,15 @@ data/*
 *.pdf
 
 # Vector stores are derived artifacts. Rebuild them with ingest.py.
-chroma_db/
+#
+# By shape, not by name. chroma_db/ was the name the default produces, but
+# RAG_CHROMA_PATH makes the path a setting, and a second corpus needs a second
+# store: chroma_obliqa/ showed up untracked the first time ObliQA was ingested.
+# Same defect as IA-139 for the third time, four lines under the comment above
+# that says a rule protecting a location only protects the people who use that
+# location. An absolute path in the environment still escapes this. An ignore
+# file cannot chase a variable; it can cover every name a person would pick.
+chroma*/
 
 # Evaluation runs are reproducible output, except the ones promoted to
 # eval/results/ on purpose as a recorded baseline.

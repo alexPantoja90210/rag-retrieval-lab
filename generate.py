@@ -149,7 +149,8 @@ class AnthropicModel:
 
     def __call__(self, question, passages, expect=None, expected_pages=None,
                  max_tokens: int = common.MAX_OUTPUT_TOKENS,
-                 system: str | None = None, **_):
+                 system: str | None = None,
+                 temperature: float = common.TEMPERATURE, **_):
         import os
 
         from anthropic import Anthropic
@@ -164,6 +165,7 @@ class AnthropicModel:
         resp = client.messages.create(
             model=self.name,
             max_tokens=max_tokens,          # control 1: a hard cap, not a hope
+            temperature=temperature,        # pinned, so arms are comparable
             system=system or GROUNDED_SYSTEM,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -172,7 +174,7 @@ class AnthropicModel:
         usd = common.actual_usd(self.name, tin, tout)
         common.log_usage({                   # control 3: measured, not estimated
             "model": self.name, "question": question[:120],
-            "prompt_arm": _arm_name(system),
+            "prompt_arm": _arm_name(system), "temperature": temperature,
             "input_tokens": tin, "output_tokens": tout, "usd": round(usd, 6),
         })
         return Answer(text, self.name, tin, tout, usd,

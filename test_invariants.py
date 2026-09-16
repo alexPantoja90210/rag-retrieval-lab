@@ -216,6 +216,19 @@ def main() -> int:
               not ea2.is_pure_sabotage(probey, row))
         check("an empty donor is rejected", not ea2.is_pure_sabotage([], row))
 
+        print("determinism (IA-148)")
+        check("temperature defaults to 0", common.TEMPERATURE == 0.0,
+              f"{common.TEMPERATURE}")
+        import inspect as _i
+        for backend in ("stub", "stub-memoriser", "claude-haiku-4-5"):
+            sig = _i.signature(_g.get_model(backend).__call__)
+            ok = "temperature" in sig.parameters or any(
+                p.kind is _i.Parameter.VAR_KEYWORD for p in sig.parameters.values())
+            check(f"{backend} accepts a temperature", ok)
+        src = _i.getsource(_g.AnthropicModel.__call__)
+        check("the API call actually sends temperature, not just accepts it",
+              "temperature=temperature" in src)
+
         print("passages carry chunk identity")
         ps = Passage("d.pdf", 3, 0.5, "text", 2, "abc123")
         check("a Passage exposes chunk_index and chunk_id",

@@ -193,6 +193,15 @@ PRICES_USD_PER_MTOK = {
 
 DEFAULT_MODEL = os.environ.get("RAG_MODEL", "claude-haiku-4-5")
 MAX_OUTPUT_TOKENS = int(os.environ.get("RAG_MAX_OUTPUT_TOKENS", 300))
+
+# Temperature 0 by default. This was not set for the first two experiment runs
+# and it should have been: with identical inputs, 48 of 63 calls produced
+# different text between runs, and one verdict flipped, which was the whole of
+# an 8/11-versus-7/11 difference that had already been written up as a finding.
+# An experiment whose arms are compared on one sample each needs its only source
+# of randomness pinned. Temperature 0 reduces variance; it does not abolish it,
+# so repeats still matter. IA-148.
+TEMPERATURE = float(os.environ.get("RAG_TEMPERATURE", 0.0))
 USAGE_LOG = Path(os.environ.get("RAG_USAGE_LOG", "eval/usage-log.jsonl"))
 
 # The exact string the model is told to produce when the passages do not

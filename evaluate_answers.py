@@ -95,6 +95,11 @@ def main() -> int:
     ap.add_argument("--json-out", default=None)
     ap.add_argument("--prompt", default="grounded", choices=list(generate.PROMPTS),
                     help="which system prompt to use for this run (IA-145)")
+    ap.add_argument("--temperature", type=float, default=common.TEMPERATURE)
+    ap.add_argument("--repeats", type=int, default=1,
+                    help="run every arm N times. Temperature 0 lowers variance "
+                         "and does not remove it, so a single sample per cell "
+                         "is not a measurement. IA-148.")
     ap.add_argument("--all-arms", action="store_true",
                     help="run every prompt arm and tabulate. One variable moves: "
                          "the system prompt. Same model, retrieval, questions and "
@@ -149,14 +154,16 @@ def main() -> int:
               if r["pages"] and not is_pure_sabotage(sabotage_passages(rows, i), r)]
     n_ans_ch = sum(1 for r in rows if r["pages"] and r["_answer_chunk_ids"])
 
-    print(f"model        {args.model}")
+    print(f"model        {args.model}  temperature={args.temperature}"
+          f"{'  repeats=' + str(args.repeats) if args.repeats > 1 else ''}")
     print(f"retrieval    {args.backend}, k={args.k}, threshold="
           f"{args.threshold if args.threshold is not None else 'none'}")
     print(f"questions    {len(rows)}  ({len(answerable)} answerable, "
           f"{len(scorable)} of those auto-scorable)")
-    n_arms_p = len(generate.PROMPTS) if args.all_arms else 1
-    if n_arms_p > 1:
-        print(f"arms         {n_arms_p}  ({', '.join(generate.PROMPTS)})")
+    n_arms_p = (len(generate.PROMPTS) if args.all_arms else 1) * args.repeats
+    n_arm_kinds = len(generate.PROMPTS) if args.all_arms else 1
+    if n_arm_kinds > 1:
+        print(f"arms         {n_arm_kinds}  ({', '.join(generate.PROMPTS)})")
     print(f"calls        {len(calls) * n_arms_p}  "
           f"({sum(1 for c,_ in calls if c=='grounded') * n_arms_p} grounded, "
           f"{sum(1 for c,_ in calls if c=='sabotaged') * n_arms_p} sabotaged)")
@@ -174,7 +181,7 @@ def main() -> int:
         print(f"skipped      {skipped} question(s) declined by the retrieval gate, "
               f"costing nothing")
     try:
-        n_arms = len(generate.PROMPTS) if args.all_arms else 1
+        n_arms = (len(generate.PROMPTS) if args.all_arms else 1) * args.repeats
         est = common.check_budget(args.model, len(calls) * n_arms, worst_tokens,
                                   args.max_usd, args.max_tokens)
     except common.BudgetExceeded as e:
@@ -187,14 +194,15 @@ def main() -> int:
     spent = 0.0
     results = []
     arms = list(generate.PROMPTS) if args.all_arms else [args.prompt]
-    for arm in arms:
+    for rep in range(args.repeats):
+     for arm in arms:
       system = generate.PROMPTS[arm]
       for cond, i in calls:
         r = rows[i]
         passages = r["_passages"] if cond == "grounded" else sabotage_passages(rows, i)
         a = model(r["question"], passages, expect=r.get("answer_contains"),
                   expected_pages=r["pages"], max_tokens=args.max_tokens,
-                  system=system)
+                  system=system, temperature=args.temperature)
         spent += a.usd
         correct = None
         if r.get("answer_contains"):
@@ -205,7 +213,7 @@ def main() -> int:
             pat = re.compile(r"(?<![\w.])" + re.escape(r["answer_contains"]) + r"(?![\w])",
                              re.IGNORECASE)
             correct = (not a.abstained) and bool(pat.search(a.text))
-        results.append({"id": r["id"], "arm": arm, "condition": cond,
+        results.append({"id": r["id"], "arm": arm, "repeat": rep, "condition": cond,
                         "abstained": a.abstained,
                         "correct": correct, "text": a.text[:300],
                         "pages_shown": [ps.page for ps in passages],
@@ -238,6 +246,13 @@ def main() -> int:
         # the right evidence than with the wrong evidence, and it can only come
         # from memory. The metric was blind to exactly the instance it was
         # built to catch, and the first three-arm run contained one. IA-147.
+        per_rep = []
+        for rep in range(args.repeats):
+            n = sum(1 for r in scorable
+                    if any(x["correct"] for x in results
+                           if x["id"] == r["id"] and x["arm"] == arm
+                           and x["condition"] == "sabotaged" and x["repeat"] == rep))
+            per_rep.append(n)
         leaked = [r for r in scorable
                   if (pick("sabotaged", r["id"], arm) or {}).get("correct")]
         leaked_only_sabotaged = [r for r in leaked if r not in g_ok]
@@ -256,9 +271,10 @@ def main() -> int:
                         "leaked_ids": [r["id"] for r in leaked],
                         "leaked_while_failing_when_grounded":
                             [r["id"] for r in leaked_only_sabotaged]}
+        spread = f"  per repeat {per_rep}" if args.repeats > 1 else ""
         print(f"{arm:<24} {len(g_ok):>3}/{len(scorable):<4} {len(leaked):>8} "
               f"{rate:>9.0%} {len(dec):>10}/{len(answerable):<3} "
-              f"{len(und):>11}/{n_un}")
+              f"{len(und):>11}/{n_un}{spread}")
     for arm in arms:
         wrong_chunk = [r["id"] for r in scorable
                        if (pick("grounded", r["id"], arm) or {}).get("correct") is False

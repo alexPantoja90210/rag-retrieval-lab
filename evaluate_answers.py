@@ -32,18 +32,50 @@ import generate
 from evaluate import load_questions
 
 
-def sabotage_passages(rows: list[dict], i: int) -> list:
-    """Passages from a different question, chosen so no expected page overlaps.
+def evidence_strings(row: dict) -> list[str]:
+    """Text that would let a reader answer without prior knowledge.
 
-    Deterministic, so a rerun compares like with like. Walks forward from a
-    fixed offset until it finds a donor whose pages miss the target's entirely.
+    Defaults to the probe, which verify_questions.py has already confirmed sits
+    on the expected page. `answer_evidence` extends it where the answer also
+    appears in another form elsewhere in the corpus, such as a symbol in a
+    table. That is not hypothetical: q14's answer is "label smoothing", the
+    phrase appears only on page 8, and page 9 carries a Table 3 column headed
+    with the symbol for it. Excluding page 8 did not exclude the evidence.
     """
-    want = set(rows[i]["pages"])
+    out = [row["probe"]] if row.get("probe") else []
+    out += row.get("answer_evidence", [])
+    if row.get("answer_contains") and len(row["answer_contains"]) >= 5:
+        out.append(row["answer_contains"])
+    return [e for e in dict.fromkeys(out) if e]
+
+
+def is_pure_sabotage(passages: list, row: dict) -> bool:
+    """No expected page, no answer chunk, and no answer evidence in the text.
+
+    Page exclusion alone was what the first run used, and it let a fragment of
+    q14's answer through. Purity is now a property that gets checked rather
+    than a property the construction is assumed to have. IA-144.
+    """
+    if not passages:
+        return False
+    if set(row["pages"]) & {ps.page for ps in passages}:
+        return False
+    if set(row.get("_answer_chunk_ids", ())) & {ps.chunk_id for ps in passages}:
+        return False
+    hay = " ".join(" ".join(ps.text.split()) for ps in passages).lower()
+    return not any(e.lower() in hay for e in evidence_strings(row))
+
+
+def sabotage_passages(rows: list[dict], i: int) -> list:
+    """A donor question's passages, verified pure for this question.
+
+    Deterministic: walks forward from a fixed offset and takes the first donor
+    that passes every purity check, so a rerun compares like with like.
+    """
     n = len(rows)
     for step in range(1, n):
         donor = rows[(i + 6 + step) % n]
-        donor_pages = {p for _, p, _, _ in donor["_passages"]}
-        if not (want & donor_pages) and donor["_passages"]:
+        if is_pure_sabotage(donor["_passages"], rows[i]):
             return donor["_passages"]
     return []
 
@@ -70,6 +102,26 @@ def main() -> int:
     args = ap.parse_args()
 
     rows = load_questions(Path(args.questions))
+
+    # Chunk-level ground truth, derived rather than hand-written: the chunks
+    # whose text actually contains the probe. verify_questions.py has already
+    # confirmed the probe is on the expected page, so this cannot drift from
+    # the corpus without that check failing first.
+    from ingest import load_chunks
+    chunks = load_chunks(common.DATA_PATH)
+    for r in rows:
+        pr = (r.get("probe") or "").lower()
+        # Restricted to the expected page as well as the probe. Without that
+        # restriction q03's probe, "identical layers", matches a chunk on page 2
+        # as well as the expected page 3, and a run that retrieved page 2 was
+        # being classified as a generation failure when the answer chunk had
+        # never been supplied at all. Caught while testing this very fix.
+        r["_answer_chunk_ids"] = [
+            c.metadata["chunk_id"] for c in chunks
+            if pr and pr in c.page_content.lower()
+            and (c.metadata["page"] + 1) in r["pages"]
+        ] if r["pages"] else []
+
     for r in rows:
         r["_passages"] = generate.retrieve(r["question"], args.k, args.backend,
                                            args.threshold)
@@ -93,6 +145,10 @@ def main() -> int:
                     generate.SYSTEM + generate.build_prompt(r["question"], sab)))
     worst_tokens = max(est_tokens) if est_tokens else 0
 
+    impure = [r["id"] for i, r in enumerate(rows)
+              if r["pages"] and not is_pure_sabotage(sabotage_passages(rows, i), r)]
+    n_ans_ch = sum(1 for r in rows if r["pages"] and r["_answer_chunk_ids"])
+
     print(f"model        {args.model}")
     print(f"retrieval    {args.backend}, k={args.k}, threshold="
           f"{args.threshold if args.threshold is not None else 'none'}")
@@ -104,6 +160,15 @@ def main() -> int:
     print(f"calls        {len(calls) * n_arms_p}  "
           f"({sum(1 for c,_ in calls if c=='grounded') * n_arms_p} grounded, "
           f"{sum(1 for c,_ in calls if c=='sabotaged') * n_arms_p} sabotaged)")
+    print(f"ground truth  page level for all, chunk level for {n_ans_ch}/"
+          f"{len([r for r in rows if r['pages']])} answerable "
+          f"(derived from the probe, not authored)")
+    if impure:
+        print(f"\nSABOTAGE STOP: no pure sabotage set exists for {', '.join(impure)}. "
+              f"Nothing was sent.")
+        return 3
+    print("sabotage      purity verified for every answerable question: no expected "
+          "page,\n              no answer chunk, no answer evidence in the text")
     skipped = len(rows) - sum(1 for c, _ in calls if c == "grounded")
     if skipped:
         print(f"skipped      {skipped} question(s) declined by the retrieval gate, "
@@ -143,7 +208,11 @@ def main() -> int:
         results.append({"id": r["id"], "arm": arm, "condition": cond,
                         "abstained": a.abstained,
                         "correct": correct, "text": a.text[:300],
-                        "pages_shown": [p for _, p, _, _ in passages],
+                        "pages_shown": [ps.page for ps in passages],
+                        "chunks_shown": [ps.chunk_id for ps in passages],
+                        "answer_chunk_shown": bool(
+                            set(r.get("_answer_chunk_ids", ()))
+                            & {ps.chunk_id for ps in passages}),
                         "expected_pages": r["pages"], "usd": a.usd})
 
     def pick(cond, qid, arm=None):
@@ -190,6 +259,23 @@ def main() -> int:
         print(f"{arm:<24} {len(g_ok):>3}/{len(scorable):<4} {len(leaked):>8} "
               f"{rate:>9.0%} {len(dec):>10}/{len(answerable):<3} "
               f"{len(und):>11}/{n_un}")
+    for arm in arms:
+        wrong_chunk = [r["id"] for r in scorable
+                       if (pick("grounded", r["id"], arm) or {}).get("correct") is False
+                       and not (pick("grounded", r["id"], arm) or {}).get(
+                           "answer_chunk_shown", False)]
+        had_it = [r["id"] for r in scorable
+                  if (pick("grounded", r["id"], arm) or {}).get("correct") is False
+                  and (pick("grounded", r["id"], arm) or {}).get(
+                      "answer_chunk_shown", False)]
+        if wrong_chunk or had_it:
+            print(f"\n  {arm} grounded failures, split by cause (IA-144):")
+            if wrong_chunk:
+                print(f"    retrieval never supplied the answer chunk: "
+                      f"{', '.join(wrong_chunk)}")
+            if had_it:
+                print(f"    the answer chunk WAS supplied and it still failed: "
+                      f"{', '.join(had_it)}   <- a generation failure")
     for arm in arms:
         if summary[arm]["leaked_ids"]:
             print(f"\n  {arm}: answered from memory on "

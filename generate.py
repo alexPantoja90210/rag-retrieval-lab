@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import textwrap
 from dataclasses import dataclass, field
+from typing import NamedTuple
 
 import common
 
@@ -58,6 +59,23 @@ PROMPTS = {
 SYSTEM = GROUNDED_SYSTEM
 
 
+class Passage(NamedTuple):
+    """What retrieval hands to the model, and what gets logged.
+
+    Carries chunk_index and chunk_id, not just the page. IA-144: with page-level
+    records alone, "the right page was retrieved and the model declined" cannot
+    be separated into a retrieval failure and a generation failure, and those
+    need different fixes.
+    """
+
+    source: str
+    page: int
+    score: float
+    text: str
+    chunk_index: int
+    chunk_id: str
+
+
 @dataclass
 class Answer:
     text: str
@@ -69,14 +87,13 @@ class Answer:
     passages: list = field(default_factory=list)
 
 
-def build_prompt(question: str, passages: list[tuple]) -> str:
-    """passages: list of (document, page, score, text)."""
+def build_prompt(question: str, passages: list[Passage]) -> str:
     blocks = []
-    for i, (doc, page, score, text) in enumerate(passages, start=1):
-        body = " ".join(text.split())
+    for i, ps in enumerate(passages, start=1):
+        body = " ".join(ps.text.split())
         blocks.append(
-            f"<passage id=\"{i}\" source=\"{doc}\" page=\"{page}\" score=\"{score:.4f}\">\n"
-            f"{body}\n</passage>"
+            f"<passage id=\"{i}\" source=\"{ps.source}\" page=\"{ps.page}\" "
+            f"score=\"{ps.score:.4f}\">\n{body}\n</passage>"
         )
     joined = "\n\n".join(blocks) if blocks else "(no passages were retrieved)"
     return f"PASSAGES\n\n{joined}\n\nQUESTION\n\n{question}"
@@ -99,9 +116,9 @@ class StubModel:
     name = "stub"
 
     def __call__(self, question, passages, expect=None, expected_pages=None, **_):
-        pages = {p for _, p, _, _ in passages}
+        pages = {ps.page for ps in passages}
         if expected_pages and (pages & set(expected_pages)):
-            doc, page = passages[0][0], sorted(pages & set(expected_pages))[0]
+            doc, page = passages[0].source, sorted(pages & set(expected_pages))[0]
             return Answer(f"{expect or 'the answer'} [{doc} p.{page}]", self.name,
                           abstained=False, passages=passages)
         return Answer(common.ABSTAIN, self.name, abstained=True, passages=passages)
@@ -120,7 +137,7 @@ class StubMemoriser:
 
     def __call__(self, question, passages, expect=None, expected_pages=None, **_):
         if expect:
-            doc, page = (passages[0][0], passages[0][1]) if passages else ("unknown", 0)
+            doc, page = (passages[0].source, passages[0].page) if passages else ("unknown", 0)
             return Answer(f"{expect} [{doc} p.{page}]", self.name, abstained=False,
                           passages=passages)
         return Answer(common.ABSTAIN, self.name, abstained=True, passages=passages)
@@ -188,9 +205,11 @@ def retrieve(query: str, k: int, backend: str, threshold: float | None):
     hits = store.similarity_search_with_score(query, k=k)
     out = []
     for doc, dist in hits:
-        s = common.similarity_from_distance(dist)
-        if threshold is not None and s < threshold:
+        sim = common.similarity_from_distance(dist)
+        if threshold is not None and sim < threshold:
             continue
-        out.append((doc.metadata.get("source"), int(doc.metadata.get("page", -1)) + 1,
-                    s, doc.page_content))
+        m = doc.metadata
+        out.append(Passage(m.get("source"), int(m.get("page", -1)) + 1, sim,
+                           doc.page_content, int(m.get("chunk_index", -1)),
+                           m.get("chunk_id", "")))
     return out

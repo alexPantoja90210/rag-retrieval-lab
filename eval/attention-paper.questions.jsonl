@@ -22,7 +22,7 @@
 {"id": "q11", "question": "Which optimizer was used for training and how was the learning rate varied?", "pages": [7], "probe": "warmup", "answer_contains": "Adam"}
 {"id": "q12", "question": "What hardware was the model trained on and for how long?", "pages": [7], "probe": "P100", "answer_contains": "P100"}
 {"id": "q13", "question": "What BLEU score does the big model achieve on English-to-German translation?", "pages": [8], "probe": "28.4", "answer_contains": "28.4"}
-{"id": "q14", "question": "What regularisation was applied to the output distribution during training?", "pages": [8], "probe": "label smoothing", "answer_contains": "label smoothing"}
+{"id": "q14", "question": "What regularisation was applied to the output distribution during training?", "pages": [8], "probe": "label smoothing", "answer_contains": "label smoothing", "answer_evidence": ["label smoothing", "ϵls", "epsilon_ls"]}
 {"id": "q15", "question": "What happens to quality when the number of attention heads is varied?", "pages": [9], "probe": "Variations on the Transformer"}
 {"id": "u01", "question": "What BLEU score does the model achieve on English-to-Spanish translation?", "pages": [], "note": "adjacent and absent: the paper reports EN-DE and EN-FR only"}
 {"id": "u02", "question": "What learning rate does BERT use when fine-tuning on downstream tasks?", "pages": [], "note": "adjacent and absent: BERT postdates this paper"}

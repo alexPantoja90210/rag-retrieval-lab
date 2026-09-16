@@ -151,12 +151,15 @@ def main() -> int:
 
         print("sabotage construction")
         import evaluate_answers as ea
-        fake = [{"id": f"q{i}", "pages": [i], "question": "?",
-                 "_passages": [("d.pdf", i, 0.5, f"text {i}")]} for i in range(1, 8)]
+        from generate import Passage as _P
+        fake = [{"id": f"q{i}", "pages": [i], "question": "?", "probe": f"marker{i}",
+                 "_answer_chunk_ids": [f"chunk{i}"],
+                 "_passages": [_P("d.pdf", i, 0.5, f"body text {i}", 0, f"chunk{i}")]}
+                for i in range(1, 8)]
         clean = True
         for i, r in enumerate(fake):
             sab = ea.sabotage_passages(fake, i)
-            if not sab or (set(r["pages"]) & {p for _, p, _, _ in sab}):
+            if not sab or (set(r["pages"]) & {ps.page for ps in sab}):
                 clean = False
         check("sabotage passages never include an expected page", clean)
         check("sabotage selection is deterministic",
@@ -191,6 +194,32 @@ def main() -> int:
         check("the plus-abstain arm is the reference plus exactly that",
               _g.PROMPTS["reference-plus-abstain"].startswith(_g.PROMPTS["reference"])
               and common.ABSTAIN in _g.PROMPTS["reference-plus-abstain"])
+
+        print("sabotage purity (IA-144)")
+        import evaluate_answers as ea2
+        from generate import Passage
+        row = {"id": "t", "pages": [8], "probe": "label smoothing",
+               "answer_evidence": ["\u03f5ls"], "_answer_chunk_ids": ["deadbeef"]}
+        clean = [Passage("d.pdf", 2, .5, "unrelated prose about convolutions", 0, "aaa")]
+        onpage = [Passage("d.pdf", 8, .5, "unrelated prose", 0, "bbb")]
+        onchunk = [Passage("d.pdf", 2, .5, "unrelated prose", 0, "deadbeef")]
+        eviden = [Passage("d.pdf", 2, .5, "Table 3 ... \u03f5ls 0.1 ...", 0, "ccc")]
+        probey = [Passage("d.pdf", 2, .5, "we used label smoothing here", 0, "ddd")]
+        check("a clean donor is accepted", ea2.is_pure_sabotage(clean, row))
+        check("a donor on the expected page is rejected",
+              not ea2.is_pure_sabotage(onpage, row))
+        check("a donor holding the answer chunk is rejected",
+              not ea2.is_pure_sabotage(onchunk, row))
+        check("a donor holding a declared evidence symbol is rejected",
+              not ea2.is_pure_sabotage(eviden, row), "the q14 contamination")
+        check("a donor holding the probe verbatim is rejected",
+              not ea2.is_pure_sabotage(probey, row))
+        check("an empty donor is rejected", not ea2.is_pure_sabotage([], row))
+
+        print("passages carry chunk identity")
+        ps = Passage("d.pdf", 3, 0.5, "text", 2, "abc123")
+        check("a Passage exposes chunk_index and chunk_id",
+              ps.chunk_index == 2 and ps.chunk_id == "abc123")
 
         print("question set")
         qs = load_questions(Path("eval/attention-paper.questions.jsonl"))

@@ -58,8 +58,8 @@ def main() -> int:
     print(f"budget     worst case ${est:.6f}, limit ${args.max_usd:.6f}  ok")
 
     print("\nretrieved")
-    for i, (doc, page, score, text) in enumerate(passages, start=1):
-        print(f"  [{i}] {score:.4f}  {doc} p.{page}")
+    for i, ps in enumerate(passages, start=1):
+        print(f"  [{i}] {ps.score:.4f}  {ps.source} p.{ps.page} chunk {ps.chunk_index}")
 
     model = generate.get_model(args.model)
     answer = model(question, passages, max_tokens=args.max_tokens)

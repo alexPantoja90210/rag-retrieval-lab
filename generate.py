@@ -9,6 +9,7 @@ Only answer quality needs the real model.
 from __future__ import annotations
 
 import textwrap
+import re
 from dataclasses import dataclass, field
 from typing import NamedTuple
 
@@ -85,6 +86,12 @@ class Answer:
     usd: float = 0.0
     abstained: bool = False
     passages: list = field(default_factory=list)
+    citation_ok: bool = True
+    citation_reason: str = ""
+
+    def accepted(self) -> bool:
+        """What the SYSTEM returns, as opposed to what the model produced."""
+        return self.citation_ok
 
 
 def build_prompt(question: str, passages: list[Passage]) -> str:
@@ -97,6 +104,17 @@ def build_prompt(question: str, passages: list[Passage]) -> str:
         )
     joined = "\n\n".join(blocks) if blocks else "(no passages were retrieved)"
     return f"PASSAGES\n\n{joined}\n\nQUESTION\n\n{question}"
+
+
+def _gated(text: str, name: str, passages: list) -> "Answer":
+    """Every backend's answer goes through the same citation gate.
+
+    The stubs included. A test double that skips a control the real backend is
+    subject to is a test double that cannot exercise the control.
+    """
+    ok, why = check_citations(text, passages)
+    return Answer(text, name, abstained=common.looks_like_abstention(text),
+                  passages=passages, citation_ok=ok, citation_reason=why)
 
 
 class StubModel:
@@ -119,9 +137,9 @@ class StubModel:
         pages = {ps.page for ps in passages}
         if expected_pages and (pages & set(expected_pages)):
             doc, page = passages[0].source, sorted(pages & set(expected_pages))[0]
-            return Answer(f"{expect or 'the answer'} [{doc} p.{page}]", self.name,
-                          abstained=False, passages=passages)
-        return Answer(common.ABSTAIN, self.name, abstained=True, passages=passages)
+            return _gated(f"{expect or 'the answer'} [{doc} p.{page}]", self.name,
+                          passages)
+        return _gated(common.ABSTAIN, self.name, passages)
 
 
 class StubMemoriser:
@@ -138,9 +156,8 @@ class StubMemoriser:
     def __call__(self, question, passages, expect=None, expected_pages=None, **_):
         if expect:
             doc, page = (passages[0].source, passages[0].page) if passages else ("unknown", 0)
-            return Answer(f"{expect} [{doc} p.{page}]", self.name, abstained=False,
-                          passages=passages)
-        return Answer(common.ABSTAIN, self.name, abstained=True, passages=passages)
+            return _gated(f"{expect} [{doc} p.{page}]", self.name, passages)
+        return _gated(common.ABSTAIN, self.name, passages)
 
 
 class AnthropicModel:
@@ -184,8 +201,42 @@ class AnthropicModel:
             "prompt_arm": _arm_name(system),
             "input_tokens": tin, "output_tokens": tout, "usd": round(usd, 6),
         })
+        ok, why = check_citations(text, passages)
         return Answer(text, self.name, tin, tout, usd,
-                      common.looks_like_abstention(text), passages)
+                      common.looks_like_abstention(text), passages, ok, why)
+
+
+CITATION = re.compile(r"\[[^\]]*?p\.?\s*(\d+)[^\]]*?\]")
+
+
+def check_citations(text: str, passages: list[Passage]) -> tuple[bool, str]:
+    """Is this answer allowed through? Returns (ok, reason).
+
+    Level 1: an answer that asserts something and cites nothing is rejected.
+    The prompt has always said "an uncited claim is a failure" and nothing
+    enforced it: 9 of 33 non-declining answers in the three-repeat run carried
+    no citation and none of them failed. An instruction with no mechanism is
+    not a rule, which is the sentence this whole project is built around, and
+    it applied to our own prompt as much as to the reference's.
+
+    Level 2: a citation pointing at a page that was never supplied is rejected.
+    That is how an answer from memory disguises itself as an answer from the
+    corpus. It has not happened yet, 29 of 29 references pointed at supplied
+    pages, and a control that only runs when something goes wrong still has to
+    exist before it can run.
+
+    Declining needs no citation. There is no claim to support.
+    """
+    if common.looks_like_abstention(text):
+        return True, "declined, nothing to cite"
+    pages = CITATION.findall(text or "")
+    if not pages:
+        return False, "asserts something and cites nothing"
+    supplied = {ps.page for ps in passages}
+    bad = sorted({int(p) for p in pages} - supplied)
+    if bad:
+        return False, f"cites page(s) {bad} that were never supplied"
+    return True, f"cites {sorted({int(p) for p in pages})}, all supplied"
 
 
 def _arm_name(system: str | None) -> str:

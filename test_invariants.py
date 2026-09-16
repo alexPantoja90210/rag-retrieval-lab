@@ -260,6 +260,26 @@ def main() -> int:
         check("there is no temperature setting to pretend to pin",
               not hasattr(common, "TEMPERATURE"))
 
+        print("citation gate (levels 1 and 2)")
+        from generate import Passage as _PG, check_citations as _cc
+        shown = [_PG("d.pdf", 6, .5, "t", 0, "a"), _PG("d.pdf", 7, .5, "t", 1, "b")]
+        check("an answer citing a supplied page is accepted",
+              _cc("8 heads [d.pdf p.6].", shown)[0])
+        check("two citations, both supplied, accepted",
+              _cc("A [d.pdf p.6] and B [d.pdf p.7].", shown)[0])
+        check("an assertion with no citation is REJECTED",
+              not _cc("Based on the passages, it dispenses with recurrence.", shown)[0],
+              "level 1, the form the real leak took")
+        check("a citation to a page never supplied is REJECTED",
+              not _cc("The answer is X [d.pdf p.1].", shown)[0], "level 2")
+        check("declining needs no citation",
+              _cc(common.ABSTAIN + " The passages cover another topic.", shown)[0])
+        check("an empty answer is REJECTED rather than waved through",
+              not _cc("", shown)[0])
+        check("the gate runs on the stubs too, not only the real backend",
+              _g.get_model("stub")("q", shown, expect="x",
+                                   expected_pages=[6]).citation_reason != "")
+
         print("passages carry chunk identity")
         ps = Passage("d.pdf", 3, 0.5, "text", 2, "abc123")
         check("a Passage exposes chunk_index and chunk_id",

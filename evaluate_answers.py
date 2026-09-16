@@ -214,6 +214,8 @@ def main() -> int:
             correct = (not a.abstained) and bool(pat.search(a.text))
         results.append({"id": r["id"], "arm": arm, "repeat": rep, "condition": cond,
                         "abstained": a.abstained,
+                        "citation_ok": a.citation_ok,
+                        "citation_reason": a.citation_reason,
                         "correct": correct, "text": a.text[:300],
                         "pages_shown": [ps.page for ps in passages],
                         "chunks_shown": [ps.chunk_id for ps in passages],
@@ -230,8 +232,8 @@ def main() -> int:
         return None
 
     # --- the numbers, per arm -----------------------------------------------
-    print(f"{'arm':<24} {'correct':>8} {'leaked':>8} {'leak rate':>10} "
-          f"{'declined(sab)':>14} {'unans declined':>15}")
+    print(f"{'arm':<24} {'correct':>8} {'leaked':>7} {'past gate':>10} "
+          f"{'cite-rejected':>14} {'declined(sab)':>14}")
     summary = {}
     for arm in arms:
         g_ok = [r for r in scorable
@@ -263,6 +265,14 @@ def main() -> int:
                   if any(x["correct"] for x in results
                          if x["id"] == r["id"] and x["arm"] == arm
                          and x["condition"] == "sabotaged")]
+        # What the model produced, and what the system would actually return,
+        # are different numbers and both belong in the report. A leak the
+        # citation gate rejects never reaches a user; it still happened.
+        leaked_through = [r for r in scorable
+                          if any(x["correct"] and x["citation_ok"] for x in results
+                                 if x["id"] == r["id"] and x["arm"] == arm
+                                 and x["condition"] == "sabotaged")]
+        rejected = [x for x in results if x["arm"] == arm and not x["citation_ok"]]
         leaked_only_sabotaged = [r for r in leaked if r not in g_ok]
         dec = [r for r in answerable
                if (pick("sabotaged", r["id"], arm) or {}).get("abstained")]
@@ -277,14 +287,16 @@ def main() -> int:
                         "leak_rate": rate, "declined_sabotage": len(dec),
                         "unanswerable_declined": len(und),
                         "leaked_ids": [r["id"] for r in leaked],
+                        "leaked_past_citation_gate": [r["id"] for r in leaked_through],
+                        "citation_rejected": len(rejected),
                         "leaked_while_failing_when_grounded":
                             [r["id"] for r in leaked_only_sabotaged]}
         # Printed even at one repeat, so a reader can never mistake a single
         # sample for a measurement.
-        spread = f"  per repeat {per_rep}"
-        print(f"{arm:<24} {len(g_ok):>3}/{len(scorable):<4} {len(leaked):>8} "
-              f"{rate:>9.0%} {len(dec):>10}/{len(answerable):<3} "
-              f"{len(und):>11}/{n_un}{spread}")
+        n_rows = len([x for x in results if x["arm"] == arm])
+        print(f"{arm:<24} {len(g_ok):>3}/{len(scorable):<4} {len(leaked):>7} "
+              f"{len(leaked_through):>10} {len(rejected):>7}/{n_rows:<6} "
+              f"{len(dec):>10}/{len(answerable):<3}  per repeat {per_rep}")
     for arm in arms:
         wrong_chunk = [r["id"] for r in scorable
                        if (pick("grounded", r["id"], arm) or {}).get("correct") is False
@@ -312,6 +324,10 @@ def main() -> int:
                   f"the WRONG passages and declined with the right ones,")
             print(f"    which is the strongest form the evidence takes.")
 
+    print("\n'leaked' is what the MODEL produced. 'past gate' is what the SYSTEM")
+    print("would return: an answer that both leaked and carried a citation to a")
+    print("supplied page. 'cite-rejected' counts every response refused because it")
+    print("asserted something without a citation, or cited a page never supplied.")
     print("\nNote: 'leaked' means ANSWERED CORRECTLY while shown passages that")
     print("cannot contain the answer. It is measured by the answer_contains check,")
     print("not by the abstention detector, so it is comparable across arms even")

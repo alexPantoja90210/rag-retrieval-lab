@@ -68,6 +68,12 @@ def main() -> int:
     print(textwrap.indent(textwrap.fill(answer.text, width=86), "  "))
     if answer.abstained:
         print("\n  (the model declined: the passages did not support an answer)")
+    print(f"\ncitations  {'accepted' if answer.citation_ok else 'REJECTED'}"
+          f"  ({answer.citation_reason})")
+    if not answer.citation_ok:
+        print("  The answer above is what the model produced. The system does not")
+        print("  return it: an assertion the corpus cannot be shown to support is")
+        print("  not an answer. Re-run with a larger -k, or accept the refusal.")
     if answer.input_tokens:
         print(f"\nusage      {answer.input_tokens} in / {answer.output_tokens} out"
               f"   ${answer.usd:.6f}   logged to {common.USAGE_LOG}")

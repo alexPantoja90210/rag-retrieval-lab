@@ -401,6 +401,114 @@ def main() -> int:
               == [100, 100, 50],
               "a client reporting 100 gets batches of 100")
 
+        print("the chat: history, the rewrite, and an unbounded budget (IA-159)")
+        import chat as _chat
+
+        class _Recorder:
+            """Records what the rewriter was shown and whether it was called."""
+            name = "stub-rewriter"
+
+            def __init__(self):
+                self.seen = []
+
+            def __call__(self, questions, max_tokens=100):
+                self.seen.append(list(questions))
+                return questions[-1], 0.0
+
+        cs = _chat.ChatSession(model="stub", backend=BACKEND, k=3, max_usd=1.0)
+        rec = _Recorder()
+        cs.rewriter = rec
+        cs.ask("how many attention heads does the model use")
+        check("the first turn does not pay for a rewrite",
+              rec.seen == [], "no history to resolve against")
+        cs.ask("and how many layers?")
+        check("a follow-up does go through the rewriter", len(rec.seen) == 1)
+
+        # The rewriter must never see corpus text. It is the same model with
+        # the same weights, and a rewrite that invents a detail sends
+        # retrieval after a question the user did not ask.
+        # Exactly the two questions that were asked, and nothing else. Not
+        # "does not contain the word PASSAGES", which would pass against a
+        # rewriter handed the answers as long as none of them said PASSAGES.
+        check("the rewriter is shown the questions and nothing else",
+              rec.seen[0] == ["how many attention heads does the model use",
+                              "and how many layers?"],
+              f"{len(rec.seen[0])} strings, all of them questions the user typed")
+
+        # History is bounded, or the rewrite prompt grows without limit and so
+        # does its cost.
+        long_cs = _chat.ChatSession(model="stub", backend=BACKEND, k=1,
+                                    max_usd=1.0)
+        long_rec = _Recorder()
+        long_cs.rewriter = long_rec
+        for i in range(_chat.MAX_HISTORY_TURNS + 4):
+            long_cs.ask(f"question number {i}")
+        check("history handed to the rewriter is bounded",
+              max(len(x) for x in long_rec.seen)
+              <= _chat.MAX_HISTORY_TURNS + 1,
+              f"at most {_chat.MAX_HISTORY_TURNS} earlier + the new one")
+
+        # The budget refuses the TURN, not the run, because a chat cannot be
+        # priced before it starts. Nothing is sent and nothing is retrieved.
+        broke = _chat.ChatSession(model=common.DEFAULT_MODEL, backend=BACKEND,
+                                  k=3, max_usd=0.0000001)
+        # Isolated from the shell on purpose. Without this the assertion
+        # passes when ANTHROPIC_API_KEY happens to be set and fails when it
+        # does not, which is a test whose result depends on the environment
+        # rather than on the code. That is IA-160's family and it would have
+        # shipped inside the fix for it.
+        broke.missing_key = lambda: False
+        stopped = broke.ask("how many attention heads does the model use")
+        check("a turn it cannot afford is refused before anything is sent",
+              stopped.note.startswith("BUDGET STOP") and broke.spent == 0.0
+              and not stopped.passages)
+
+        # The control. A budget that always stops is not a budget.
+        fine = _chat.ChatSession(model="stub", backend=BACKEND, k=3,
+                                 max_usd=1.0)
+        ok_turn = fine.ask("how many attention heads does the model use")
+        check("and a turn it can afford is not refused",
+              not ok_turn.note.startswith("BUDGET STOP") and ok_turn.passages)
+
+        # The missing-key precondition, both ways, and without ever reading
+        # the variable's value.
+        import os as _os
+        _had = _os.environ.pop("ANTHROPIC_API_KEY", None)
+        try:
+            keyless = _chat.ChatSession(model=common.DEFAULT_MODEL,
+                                        backend=BACKEND, k=3, max_usd=1.0)
+            t_nokey = keyless.ask("how many attention heads does the model use")
+            check("without a key the turn is refused with a reason, not silently",
+                  "ANTHROPIC_API_KEY" in t_nokey.note and keyless.spent == 0.0
+                  and not t_nokey.passages)
+            check("and a stub needs no key",
+                  not _chat.ChatSession(model="stub-echo", backend=BACKEND,
+                                        k=3, max_usd=1.0).missing_key())
+        finally:
+            if _had is not None:
+                _os.environ["ANTHROPIC_API_KEY"] = _had
+
+        # What the SYSTEM returns is not what the model produced. An answer
+        # the gate rejects must not reach the user as an answer.
+        rejected = _chat.Turn("q", "q", False, [], "The answer is 8.", False,
+                              "asserts something and cites nothing")
+        check("a gated-out answer is not marked accepted",
+              not rejected.accepted)
+
+        # The rewriter's outgoing keywords bind against the real SDK, checked
+        # the way IA-148 taught: against the signature, not against a string.
+        import inspect as _i2
+        try:
+            from anthropic import Anthropic as _A2
+            _kw = _chat.AnthropicRewriter(common.DEFAULT_MODEL).send_kwargs(
+                ["a", "b"], 100)
+            _i2.signature(_A2().messages.create).bind(**_kw)
+            check("every keyword the rewriter sends is accepted by the SDK",
+                  True, str(sorted(_kw)))
+        except TypeError as e:
+            check("every keyword the rewriter sends is accepted by the SDK",
+                  False, str(e))
+
         print("question set")
         qs = load_questions(Path("eval/attention-paper.questions.jsonl"))
         check("the set contains unanswerable questions",

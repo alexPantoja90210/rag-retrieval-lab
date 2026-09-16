@@ -20,9 +20,23 @@ from langchain_core.documents import Document
 
 # --- configuration ------------------------------------------------------
 
-DATA_PATH = Path(os.environ.get("RAG_DATA_PATH", "data"))
-CHROMA_PATH = Path(os.environ.get("RAG_CHROMA_PATH", "chroma_db"))
-COLLECTION = os.environ.get("RAG_COLLECTION", "corpus")
+def _env_path(name: str, default: str) -> Path:
+    """An environment variable set to "" means unset, not "the current dir".
+
+    PowerShell's $env:X="" does not remove a variable, it sets it to an empty
+    string, and os.environ.get then returns "" rather than the default.
+    Path("") is Path("."), so the store would silently move to the working
+    directory and report zero vectors. Half an afternoon went into a variant
+    of this, so the empty case is handled here rather than surprising each
+    caller. IA-163.
+    """
+    raw = (os.environ.get(name) or "").strip()
+    return Path(raw) if raw else Path(default)
+
+
+DATA_PATH = _env_path("RAG_DATA_PATH", "data")
+CHROMA_PATH = _env_path("RAG_CHROMA_PATH", "chroma_db")
+COLLECTION = os.environ.get("RAG_COLLECTION") or "corpus"
 
 # Chunking. The reference uses 300/100. That is roughly 50 words, which rarely
 # holds a complete idea in a technical document, and 33% overlap inflates the
@@ -189,6 +203,12 @@ PRICES_USD_PER_MTOK = {
     "claude-opus-5":     {"in": 5.00, "out": 25.00},
     "stub":              {"in": 0.00, "out": 0.00},
     "stub-memoriser":    {"in": 0.00, "out": 0.00},
+    # Zero here is a fact, not a guess: these make no request. Entered
+    # explicitly rather than special-cased in worst_case_usd, so the rule
+    # "an unpriced model is refused" keeps exactly one exception list and it
+    # is this table. IA-162.
+    "stub-echo":         {"in": 0.00, "out": 0.00},
+    "stub-rewriter":     {"in": 0.00, "out": 0.00},
 }
 
 DEFAULT_MODEL = os.environ.get("RAG_MODEL", "claude-haiku-4-5")

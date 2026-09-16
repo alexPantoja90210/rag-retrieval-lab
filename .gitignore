@@ -21,10 +21,6 @@ eval/*.json
 eval/usage-log.jsonl
 
 venv/
-.# Real token counts and real money. Local, never committed.
-eval/usage-log.jsonl
-
-venv/
 __pycache__/
 *.pyc
 .pytest_cache/

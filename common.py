@@ -279,3 +279,59 @@ def log_usage(record: dict) -> None:
 def actual_usd(model: str, input_tokens: int, output_tokens: int) -> float:
     p = PRICES_USD_PER_MTOK[model]
     return input_tokens / 1e6 * p["in"] + output_tokens / 1e6 * p["out"]
+
+
+# =====================================================================
+# Exact search (IA-140)
+# =====================================================================
+
+SEARCH_MODES = ("ann", "exact")
+
+
+def exact_search(store, query: str, k: int):
+    """Brute-force nearest neighbours over the vectors already in the store.
+
+    Why this exists. Chroma's HNSW is an APPROXIMATE index: it trades exactness
+    for speed, and what it returns depends on ef_search, ef_construction and
+    insertion order. At 48 vectors with ef_search=100 the search parameter
+    exceeds the corpus, so it behaves exactly. At ObliQA's 13,732 passages it
+    will not, and a missed passage would then have two possible causes the
+    evaluation cannot tell apart: the embedding placed it too far away, or the
+    index never visited it. recall@k would report the sum and attribute all of
+    it to the first.
+
+    The comparison is clean because this reads the SAME stored vectors the
+    index searches. Nothing is re-embedded, so any disagreement is the index
+    and only the index.
+
+    Cost at the size that matters: 13,732 x 384 float32 is about 21 MB and one
+    matrix multiply per query. Exactness here is affordable, and benchmarking
+    retrieval on an approximate index when exact search is affordable means
+    reporting index error as embedding error.
+
+    Returns the same shape as similarity_search_with_score: [(Document, distance)].
+    """
+    import numpy as np
+    from langchain_core.documents import Document
+
+    got = store._collection.get(include=["embeddings", "metadatas", "documents"])
+    vecs = np.asarray(got["embeddings"], dtype="float32")
+    if vecs.size == 0:
+        return []
+
+    q = np.asarray(store._embedding_function.embed_query(query), dtype="float32")
+
+    # Cosine, computed here rather than trusted: normalise both sides, then a
+    # dot product IS the cosine. Returned as a distance (1 - cosine) so callers
+    # can use similarity_from_distance unchanged and the two modes stay
+    # comparable without a second conversion rule to keep in step.
+    vn = vecs / np.clip(np.linalg.norm(vecs, axis=1, keepdims=True), 1e-12, None)
+    qn = q / max(float(np.linalg.norm(q)), 1e-12)
+    sims = vn @ qn
+
+    order = np.argsort(-sims)[:k]
+    return [
+        (Document(page_content=got["documents"][i], metadata=got["metadatas"][i]),
+         float(1.0 - sims[i]))
+        for i in order
+    ]

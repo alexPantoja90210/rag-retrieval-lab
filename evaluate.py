@@ -42,11 +42,13 @@ def load_questions(path: Path) -> list[dict]:
     return rows
 
 
-def retrieve_all(questions: list[dict], k: int, backend: str) -> list[dict]:
+def retrieve_all(questions: list[dict], k: int, backend: str,
+                 search: str = "ann") -> list[dict]:
     store = common.get_store(backend)
     out = []
     for q in questions:
-        hits = store.similarity_search_with_score(q["question"], k=k)
+        hits = (common.exact_search(store, q["question"], k) if search == "exact"
+                else store.similarity_search_with_score(q["question"], k=k))
         results = [
             {
                 "page": int(doc.metadata.get("page", -1)) + 1,
@@ -113,13 +115,17 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--questions", default="eval/attention-paper.questions.jsonl")
     ap.add_argument("-k", type=int, default=5)
+    ap.add_argument("--search", default="ann", choices=common.SEARCH_MODES,
+                    help="ann uses Chroma's approximate index; exact is brute "
+                         "force over the same stored vectors. check_index.py "
+                         "measures the gap. IA-140.")
     ap.add_argument("--backend", default=common.DEFAULT_BACKEND, choices=common.EMBEDDING_BACKENDS)
     ap.add_argument("--sweep", action="store_true", help="print the threshold sweep")
     ap.add_argument("--json-out", default=None, help="write the full result to this path")
     args = ap.parse_args()
 
     questions = load_questions(Path(args.questions))
-    rows = retrieve_all(questions, args.k, args.backend)
+    rows = retrieve_all(questions, args.k, args.backend, args.search)
     metrics = retrieval_metrics(rows, args.k)
 
     n_unans = len([r for r in rows if not r["pages"]])

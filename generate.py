@@ -258,11 +258,13 @@ def get_model(name: str = common.DEFAULT_MODEL):
     )
 
 
-def retrieve(query: str, k: int, backend: str, threshold: float | None):
+def retrieve(query: str, k: int, backend: str, threshold: float | None,
+             search: str = "ann"):
     """Retrieval plus the abstention gate. Control 4: a declined question never
     reaches the API, so it costs nothing."""
     store = common.get_store(backend)
-    hits = store.similarity_search_with_score(query, k=k)
+    hits = (common.exact_search(store, query, k) if search == "exact"
+            else store.similarity_search_with_score(query, k=k))
     out = []
     for doc, dist in hits:
         sim = common.similarity_from_distance(dist)

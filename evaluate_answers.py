@@ -84,6 +84,10 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--questions", default="eval/attention-paper.questions.jsonl")
     ap.add_argument("-k", type=int, default=5)
+    ap.add_argument("--search", default="ann", choices=common.SEARCH_MODES,
+                    help="ann uses Chroma's approximate index; exact is brute "
+                         "force over the same stored vectors. check_index.py "
+                         "measures the gap. IA-140.")
     ap.add_argument("--backend", default=common.DEFAULT_BACKEND,
                     choices=common.EMBEDDING_BACKENDS)
     ap.add_argument("--model", default=common.DEFAULT_MODEL)
@@ -128,7 +132,7 @@ def main() -> int:
 
     for r in rows:
         r["_passages"] = generate.retrieve(r["question"], args.k, args.backend,
-                                           args.threshold)
+                                           args.threshold, args.search)
 
     answerable = [r for r in rows if r["pages"]]
     scorable = [r for r in answerable if r.get("answer_contains")]
@@ -155,7 +159,7 @@ def main() -> int:
 
     print(f"model        {args.model}"
           f"{'  repeats=' + str(args.repeats) if args.repeats > 1 else ''}")
-    print(f"retrieval    {args.backend}, k={args.k}, threshold="
+    print(f"retrieval    {args.backend}, {args.search}, k={args.k}, threshold="
           f"{args.threshold if args.threshold is not None else 'none'}")
     print(f"questions    {len(rows)}  ({len(answerable)} answerable, "
           f"{len(scorable)} of those auto-scorable)")

@@ -20,6 +20,10 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("question", nargs="+")
     ap.add_argument("-k", type=int, default=5)
+    ap.add_argument("--search", default="ann", choices=common.SEARCH_MODES,
+                    help="ann uses Chroma's approximate index; exact is brute "
+                         "force over the same stored vectors. check_index.py "
+                         "measures the gap. IA-140.")
     ap.add_argument("--backend", default=common.DEFAULT_BACKEND,
                     choices=common.EMBEDDING_BACKENDS)
     ap.add_argument("--model", default=common.DEFAULT_MODEL)
@@ -32,10 +36,11 @@ def main() -> int:
     args = ap.parse_args()
     question = " ".join(args.question)
 
-    passages = generate.retrieve(question, args.k, args.backend, args.threshold)
+    passages = generate.retrieve(question, args.k, args.backend, args.threshold,
+                                 args.search)
 
     print(f"question   {question}")
-    print(f"retrieval  {args.backend}, k={args.k}, threshold="
+    print(f"retrieval  {args.backend}, {args.search}, k={args.k}, threshold="
           f"{args.threshold if args.threshold is not None else 'none'}")
     print(f"model      {args.model}")
 

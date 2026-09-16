@@ -285,6 +285,23 @@ def main() -> int:
         check("a Passage exposes chunk_index and chunk_id",
               ps.chunk_index == 2 and ps.chunk_id == "abc123")
 
+        print("exact vs approximate search (IA-140)")
+        qs_ = load_questions(Path("eval/attention-paper.questions.jsonl"))[:6]
+        same = 0
+        for q_ in qs_:
+            a_ = _g.retrieve(q_["question"], 5, BACKEND, None, "ann")
+            e_ = _g.retrieve(q_["question"], 5, BACKEND, None, "exact")
+            if [p.chunk_id for p in a_] == [p.chunk_id for p in e_]:
+                same += 1
+        check("at this corpus size the index agrees with brute force",
+              same == len(qs_), f"{same}/{len(qs_)} queries")
+        e_ = _g.retrieve(qs_[0]["question"], 5, BACKEND, None, "exact")
+        check("exact search returns k results", len(e_) == 5)
+        check("exact search is ordered best first",
+              [p.score for p in e_] == sorted([p.score for p in e_], reverse=True))
+        check("exact search carries the same metadata as the index path",
+              all(p.chunk_id and p.page >= 0 for p in e_))
+
         print("question set")
         qs = load_questions(Path("eval/attention-paper.questions.jsonl"))
         check("the set contains unanswerable questions",

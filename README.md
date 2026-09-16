@@ -1,16 +1,27 @@
 # rag-retrieval-lab
 
-A retrieval-only RAG, forked from a working tutorial and changed until its
-behaviour can be measured instead of described.
+**A chat that refuses to answer what it cannot cite**, forked from a working
+tutorial and changed until its behaviour can be measured instead of described.
 
-Retrieval is built and measured first, with no language model at all. The
-generation layer added on top has to prove its answers came from the corpus
-rather than from what the model already knew. Retrieval is the half of a RAG that decides whether a correct answer
-was ever possible, and it is the half that can be scored against ground truth
-with set arithmetic and no judge. Generation is the half that cannot. So
-retrieval gets built and measured first.
+Ask it something about the corpus and every claim comes back carrying the
+document and page it was built from. When the passages do not support an
+answer it says so. An assertion the corpus cannot be shown to support is
+rejected by the system rather than returned, whatever the model produced.
 
-Nothing here needs an API key, and nothing here costs money to run.
+That is the product. The rest of this repository is the reason to believe it.
+
+Retrieval was built and measured first, with no language model at all, because
+it is the half of a RAG that decides whether a correct answer was ever
+possible and the half that can be scored against ground truth with set
+arithmetic and no judge. Generation is the half that cannot, so it came second
+and had to prove its answers came from the corpus rather than from what the
+model already knew.
+
+**Two halves, two costs.** Retrieval, the metrics, the invariant suite, the
+sabotage construction, the citation gate and a keyless chat all run with no
+API key and no spend. Answering with a real model needs a key and costs money,
+about two tenths of a cent per turn, and every control around that is in
+"Spending is bounded" below.
 
 ## Quick start
 
@@ -36,6 +47,9 @@ python evaluate_answers.py --backend hashing --model stub-memoriser   # must cat
 python replay_gate.py eval/results/experiment-final.json   # re-score with the shipped gate
 python check_results.py                                    # does each summary match its rows?
 
+# the chat, with no key and nothing spent
+streamlit run app.py           # pick Model: stub-echo in the sidebar
+
 # with a real model
 export ANTHROPIC_API_KEY=...
 python ask.py "how many attention heads does the model use" --max-usd 0.01
@@ -43,11 +57,19 @@ python evaluate_answers.py --backend minilm --model claude-haiku-4-5 \
     --max-usd 0.15 --json-out eval/results/answers-haiku.json
 ```
 
+**The two questions worth asking the chat first**, in this order:
+
+1. `how many attention heads does the model use`
+2. `and how many layers?`
+
+The second is the whole point and is explained under "The chat" below.
+
 Then swap `--backend hashing` for `--backend minilm` and compare. The first
 MiniLM run downloads about 90 MB of model weights once, after which it is
 offline.
 
-No compiler is needed on any platform, and nothing here asks for an API key.
+No compiler is needed on any platform. Everything above the "with a real
+model" block runs without a key and spends nothing, the chat included.
 
 ## The generation layer, and the test that makes it mean something
 
@@ -377,6 +399,130 @@ an exit code. The 108/108 auditability result is the robust one.
 **And none of it makes the model forget.** The knowledge is in the weights. The
 gate makes using it without support detectable and refusable. Detection and
 incentive, not amnesia.
+
+## The chat
+
+`streamlit run app.py`. Every turn shows the passages it used with their
+source, page and score, the citation verdict, the running spend, and which
+store it is reading from. When the corpus does not support an answer it
+declines instead of bluffing.
+
+Two model options. `stub-echo` is not a model: it hands back the top passage
+with its citation, which exercises the gate, the passage viewer and the budget
+with no key and nothing spent. `claude-haiku-4-5` answers for real.
+
+### The only interesting problem a chat has
+
+`ask.py` is one question and one answer, which let it avoid this entirely.
+
+"And how many layers?" cannot be embedded. As a string it means nothing: the
+noun it refers to is in the previous turn. So it is rewritten into a standalone
+question before it reaches the store. Measured, same question both ways:
+
+| | retrieved on | answer |
+| --- | --- | --- |
+| **with the rewrite** | "How many layers does the model have?" | "a total of 12 layers: the encoder is composed of a stack of N = 6 identical layers, and the decoder is also composed of a stack of N = 6" `[p.3]` |
+| **without it** | "and how many layers?" | a passage about **dropout**, `p.7` |
+
+The second is what the tutorial this was forked from does with a follow-up.
+Run the chat twice, once on `stub-echo` and once on the real model, and you see
+both rows.
+
+### The rewrite is also a new way to leak, and only one control is a mechanism
+
+The rewriter is the same model with the same weights. Asked to make "and the
+second one?" standalone, it can produce "what is the second of the eight
+attention heads" and insert a fact the corpus was never asked for. Retrieval
+then answers a question nobody asked.
+
+Three things hold it down:
+
+1. It is shown the **questions only**. Never the answers, never the passages.
+2. Its output is used only as a query, never returned as an answer.
+3. **The rewritten query is displayed.**
+
+The first two reduce the chance and enforce nothing. The third is the only
+mechanism: a rewrite that invents is visible on screen rather than buried a
+layer down. Nothing here measures how often it happens, and on this corpus it
+never visibly did, which is an absence of observation and not evidence.
+
+### The budget changes shape when turns are unbounded
+
+Every other script here knows its call count before it starts, which is what
+lets the budget price the whole run and refuse to begin. A chat does not know
+how long it will be.
+
+So the rule becomes: refuse the **next turn** whose worst case does not fit in
+what is left. Same principle, different shape, and the first time this
+repository needed it.
+
+### Six defects came out of building it, and none were in the RAG
+
+Retrieval and generation worked throughout. Every defect was in what the
+interface tells the person using it: a sidebar that read `stub` while the
+session spent real money, a control that could only ever decline, a failure
+message blaming a threshold that was switched off, a blank page when the API
+key was missing, and a store silently redirected by an environment variable set
+hours earlier.
+
+A system can be correct and still lie to its user. That does not show up in any
+accuracy number, and it is the most useful thing this repository found.
+Recorded as IA-159 through IA-164.
+
+## The second corpus: ObliQA
+
+`corpus_obliqa.py` loads 13,732 passages of ADGM financial regulation with
+ground truth, for measuring retrieval at a scale where the reference paper's 48
+chunks say nothing. Not committed and never redistributed: it has no LICENSE,
+so it gets the same treatment as the reference PDF.
+
+```
+git clone --depth 1 https://github.com/RegNLP/ObliQADataset.git data/obliqa
+python corpus_obliqa.py
+python ingest.py --corpus obliqa --data data/obliqa --backend hashing
+```
+
+Four things are wrong with that corpus and the loader handles each at the door
+rather than letting it surface later as a strange metric:
+
+- **The ground-truth key is not unique.** 17 keys carry different text under
+  the same `(DocumentID, PassageID)`; one has seven. Resolved through the
+  passage text the question files carry, and anchored to the record uuid. A
+  pointer that cannot be resolved is reported, never guessed.
+- **864 of 11,529 passages exceed the model's 256 word-piece window** and are
+  truncated silently at embed time. Decision on record: truncate and record it.
+  Splitting breaks the unit the ground truth names; excluding changes the
+  question population. The full text is kept and an `over_window` flag carries
+  the fact, so recall can be reported with and without that subset. 364 of
+  2,788 dev questions have every supporting passage in it, which is a recall
+  ceiling the embedding cannot be blamed for.
+- **720 empty passages and 1,483 under 40 characters**, mostly headings.
+  Dropped by argument and counted, never silently.
+- **Zero dangling pointers**, re-checked on every run rather than once by hand.
+
+Retrieval on it is **not finished**: the pipeline's ground truth is an integer
+page and a regulation clause id is not, so citations currently read `p.0` for
+every passage. The ingest warns about it. Tracked as IA-157.
+
+## Every file in this repository
+
+| | |
+| --- | --- |
+| `common.py` | config, embeddings, the store, prices, budget arithmetic, exact search |
+| `ingest.py` | build the store from a PDF or from ObliQA. Idempotent, batched |
+| `corpus_obliqa.py` | the second corpus, and the four defects in it |
+| `search.py` | retrieval only, no model |
+| `evaluate.py` | hit@k, recall@k, MRR, and the threshold sweep |
+| `verify_questions.py` | is the ground truth still true of the corpus |
+| `generate.py` | prompts, the model backends, and the citation gate |
+| `ask.py` | one question, one cited answer |
+| `chat.py` | the chat session: history, rewrite, gate, per-turn budget |
+| `app.py` | Streamlit over `chat.py` |
+| `evaluate_answers.py` | the sabotage experiment and the prompt arms |
+| `replay_gate.py` | re-score a saved run with the shipped gate, free |
+| `check_results.py` | does a saved summary still agree with its own rows |
+| `check_index.py` | is the approximate index costing recall |
+| `test_invariants.py` | 81 assertions, no key, no spend |
 
 ## What was verified, and where
 

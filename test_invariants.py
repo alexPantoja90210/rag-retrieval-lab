@@ -41,9 +41,16 @@ def _raises(fn, exc) -> bool:
     return False
 
 
+# The suite counts itself. Twice in one day a count of these assertions was
+# stated from memory and was wrong, in a repository whose entire subject is
+# claims that nothing checks. Counting by hand is a claim; a counter is not.
+RUN = []
+
+
 def check(name: str, condition: bool, detail: str = "") -> None:
     status = "ok  " if condition else "FAIL"
     print(f"  {status} {name}{('  ' + detail) if detail else ''}")
+    RUN.append(name)
     if not condition:
         FAILURES.append(name)
 
@@ -340,6 +347,47 @@ def main() -> int:
         check("and passes the same file once the summary tells the truth",
               _cr.check_file(_ok) == [])
 
+        print("the ingest batches what the client will not take at once (IA-156)")
+
+        class _FakeStore:
+            """Records what it was asked to insert. No chroma, no embeddings.
+
+            Really inserting 5,500 documents would add seconds to this suite
+            and would test chroma rather than our code. This exercises the
+            shipped add_in_batches, not a description of it.
+            """
+            def __init__(self, limit):
+                self.calls = []
+                self._client = type("C", (), {
+                    "get_max_batch_size": staticmethod(lambda: limit)})()
+
+            def add_documents(self, documents, ids):
+                assert len(documents) == len(ids)
+                self.calls.append(list(ids))
+
+        docs_ = list(range(11529))
+        ids_ = [f"id{i}" for i in docs_]
+        fs = _FakeStore(5461)
+        sizes_ = common.add_in_batches(fs, docs_, ids_)
+        check("11529 documents go in as 5461 + 5461 + 607",
+              sizes_ == [5461, 5461, 607], str(sizes_))
+        check("every id is inserted exactly once, in order",
+              [i for c in fs.calls for i in c] == ids_)
+
+        # A corpus under the limit must still arrive as ONE call. A fix that
+        # changes behaviour that was already correct is a second defect.
+        small = _FakeStore(5461)
+        check("a corpus below the limit is still a single call",
+              common.add_in_batches(small, docs_[:48], ids_[:48]) == [48])
+
+        # The control. Without it this passes identically against a hard-coded
+        # 5461, which is exactly the mistake the fix exists to avoid.
+        other = _FakeStore(100)
+        check("the limit is read from the client, not written down",
+              common.add_in_batches(other, docs_[:250], ids_[:250])
+              == [100, 100, 50],
+              "a client reporting 100 gets batches of 100")
+
         print("question set")
         qs = load_questions(Path("eval/attention-paper.questions.jsonl"))
         check("the set contains unanswerable questions",
@@ -350,9 +398,10 @@ def main() -> int:
 
     print()
     if FAILURES:
-        print(f"{len(FAILURES)} failure(s): {', '.join(FAILURES)}")
+        print(f"{len(FAILURES)} failure(s) of {len(RUN)}: "
+              f"{', '.join(FAILURES)}")
         return 1
-    print("all invariants hold")
+    print(f"all {len(RUN)} invariants hold")
     return 0
 
 

@@ -362,3 +362,35 @@ def leaked_ids(results: list[dict], arm: str) -> list[str]:
                    if x.get("arm") == arm
                    and x.get("condition") == "sabotaged"
                    and x.get("correct")})
+
+
+def add_in_batches(store, docs: list, ids: list[str]) -> list[int]:
+    """Insert into the store in batches the client will accept. IA-156.
+
+    Chroma refuses a batch over its own limit, 5461 on the version pinned
+    here. With the 48-chunk reference corpus that limit never existed. At
+    11,529 passages it is the FIRST thing that fails, before any question of
+    design, and the ingest dies having written nothing.
+
+    The limit is read from the client rather than written down. A constant
+    copied out of an error message is a constant that will be wrong after an
+    upgrade, and wrong silently, because nothing runs at this scale often
+    enough to notice.
+
+    Returns the batch sizes, so a caller and a test can both see what it did
+    instead of trusting that it did something.
+    """
+    try:
+        limit = int(store._client.get_max_batch_size())
+    except Exception:
+        # An older or fake client that cannot say. 5000 is under every limit
+        # chroma has shipped, and being conservative here costs one extra
+        # round trip while being wrong costs the whole ingest.
+        limit = 5000
+    limit = max(1, limit)
+    sizes = []
+    for i in range(0, len(docs), limit):
+        batch = docs[i:i + limit]
+        store.add_documents(documents=batch, ids=ids[i:i + limit])
+        sizes.append(len(batch))
+    return sizes

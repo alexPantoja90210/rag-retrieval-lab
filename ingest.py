@@ -61,13 +61,29 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--backend", default=common.DEFAULT_BACKEND, choices=common.EMBEDDING_BACKENDS)
     ap.add_argument("--data", default=str(common.DATA_PATH))
+    ap.add_argument("--corpus", default="pdf", choices=("pdf", "obliqa"),
+                    help="which loader reads --data. See corpus_obliqa.py")
     args = ap.parse_args()
 
-    chunks = load_chunks(Path(args.data))
+    if args.corpus == "obliqa":
+        import corpus_obliqa
+        chunks, st = corpus_obliqa.load_passages(Path(args.data))
+        print(corpus_obliqa.report(st))
+        # Not a fix and not presented as one. The retrieval path reads a
+        # `page` this corpus does not have, defaults it to -1 and prints p.0
+        # for every passage: a citation that looks normal and is false. Nobody
+        # should build this store and read that without knowing why.
+        print("\nWARNING (IA-157): citations will read 'p.0' for every passage.")
+        print("The store is correct; document_id, passage_id and uid are all in")
+        print("the metadata. The display and the ground-truth comparison still")
+        print("read `page`. Retrieval scores are usable, citations are not.\n")
+    else:
+        chunks = load_chunks(Path(args.data))
     store = common.get_store(args.backend)
 
     before = store._collection.count()
-    store.add_documents(documents=chunks, ids=[c.metadata["chunk_id"] for c in chunks])
+    sizes = common.add_in_batches(
+        store, chunks, [c.metadata["chunk_id"] for c in chunks])
     after = store._collection.count()
 
     sources = sorted({c.metadata["source"] for c in chunks})
@@ -77,6 +93,8 @@ def main() -> int:
     print(f"store before   {before}")
     print(f"store after    {after}")
     print(f"net added      {after - before}")
+    if len(sizes) > 1:
+        print(f"batches        {len(sizes)}  {sizes}   (IA-156)")
     if before and after == before:
         print("\nidempotent: a re-ingest of the same corpus added nothing.")
     return 0

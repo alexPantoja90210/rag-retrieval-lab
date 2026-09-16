@@ -17,8 +17,14 @@ chroma_db/
 eval/*.json
 !eval/results/*.json
 
+# Real token counts and real money. Local, never committed.
+eval/usage-log.jsonl
+
 venv/
-.venv/
+.# Real token counts and real money. Local, never committed.
+eval/usage-log.jsonl
+
+venv/
 __pycache__/
 *.pyc
 .pytest_cache/

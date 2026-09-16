@@ -11,6 +11,7 @@ possibility.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 from pathlib import Path
 
@@ -173,3 +174,92 @@ def similarity_from_distance(distance: float) -> float:
     if HNSW_SPACE != "cosine":
         raise NotImplementedError(f"no similarity mapping defined for {HNSW_SPACE}")
     return 1.0 - float(distance)
+
+
+# =====================================================================
+# Generation layer (IA-143)
+# =====================================================================
+
+# Prices in USD per million tokens, read from
+# https://platform.claude.com/docs/en/about-claude/pricing on 16 Sep 2026.
+# Dated on purpose. A price quoted from memory is not a price.
+PRICES_USD_PER_MTOK = {
+    "claude-haiku-4-5":  {"in": 1.00, "out": 5.00},
+    "claude-sonnet-5":   {"in": 2.00, "out": 10.00},
+    "claude-opus-5":     {"in": 5.00, "out": 25.00},
+    "stub":              {"in": 0.00, "out": 0.00},
+    "stub-memoriser":    {"in": 0.00, "out": 0.00},
+}
+
+DEFAULT_MODEL = os.environ.get("RAG_MODEL", "claude-haiku-4-5")
+MAX_OUTPUT_TOKENS = int(os.environ.get("RAG_MAX_OUTPUT_TOKENS", 300))
+USAGE_LOG = Path(os.environ.get("RAG_USAGE_LOG", "eval/usage-log.jsonl"))
+
+# The exact string the model is told to produce when the passages do not
+# support an answer.
+ABSTAIN = "INSUFFICIENT EVIDENCE"
+
+
+def looks_like_abstention(text: str) -> bool:
+    """Did the model decline?
+
+    Deliberately not `text == ABSTAIN`. IA-125 recorded a tutorial whose
+    abstention check was exact string equality against free-form model output,
+    which the single character in "NA." defeats. Normalise, then look at the
+    opening, because a model that declines and then explains why has still
+    declined.
+    """
+    import re as _re
+
+    head = _re.sub(r"[^a-z ]", " ", (text or "").lower())
+    head = " ".join(head.split())
+    return head.startswith(ABSTAIN.lower())
+
+
+def estimate_input_tokens(text: str) -> int:
+    """Upper-leaning estimate: 3.5 characters per token.
+
+    Anthropic's real count is only available from the API, and the point of a
+    pre-flight budget is to decide BEFORE spending anything. English prose runs
+    nearer 4 characters per token, so 3.5 over-counts, which is the direction an
+    estimate guarding a budget should err in. Every logged figure afterwards is
+    the real count from the response, not this.
+    """
+    return int(len(text) / 3.5) + 1
+
+
+def worst_case_usd(model: str, n_calls: int, est_input_tokens: int,
+                   max_output_tokens: int = MAX_OUTPUT_TOKENS) -> float:
+    p = PRICES_USD_PER_MTOK.get(model)
+    if p is None:
+        raise ValueError(f"no recorded price for {model!r}; refusing to guess")
+    return n_calls * (est_input_tokens / 1e6 * p["in"]
+                      + max_output_tokens / 1e6 * p["out"])
+
+
+class BudgetExceeded(RuntimeError):
+    pass
+
+
+def check_budget(model: str, n_calls: int, est_input_tokens: int,
+                 max_usd: float, max_output_tokens: int = MAX_OUTPUT_TOKENS) -> float:
+    """Refuse to start a run that cannot be afforded. Control 2 of 4."""
+    est = worst_case_usd(model, n_calls, est_input_tokens, max_output_tokens)
+    if est > max_usd:
+        raise BudgetExceeded(
+            f"worst case ${est:.4f} for {n_calls} call(s) on {model} exceeds "
+            f"the --max-usd limit of ${max_usd:.4f}. Nothing was sent."
+        )
+    return est
+
+
+def log_usage(record: dict) -> None:
+    """Append the real usage reported by the API. Control 3 of 4."""
+    USAGE_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with USAGE_LOG.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(record) + "\n")
+
+
+def actual_usd(model: str, input_tokens: int, output_tokens: int) -> float:
+    p = PRICES_USD_PER_MTOK[model]
+    return input_tokens / 1e6 * p["in"] + output_tokens / 1e6 * p["out"]

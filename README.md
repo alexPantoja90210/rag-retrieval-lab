@@ -3,8 +3,9 @@
 A retrieval-only RAG, forked from a working tutorial and changed until its
 behaviour can be measured instead of described.
 
-There is no language model in this repository. That is the point, not an
-omission. Retrieval is the half of a RAG that decides whether a correct answer
+Retrieval is built and measured first, with no language model at all. The
+generation layer added on top has to prove its answers came from the corpus
+rather than from what the model already knew. Retrieval is the half of a RAG that decides whether a correct answer
 was ever possible, and it is the half that can be scored against ground truth
 with set arithmetic and no judge. Generation is the half that cannot. So
 retrieval gets built and measured first.
@@ -26,6 +27,16 @@ python ingest.py --backend hashing       # build the store
 python ingest.py --backend hashing       # run it again: it must add nothing
 python evaluate.py --backend hashing -k 5 --sweep
 python search.py "how many attention heads does the model use" --backend hashing
+
+# the generation layer, with no API key and no spend
+python evaluate_answers.py --backend hashing --model stub             # must leak 0
+python evaluate_answers.py --backend hashing --model stub-memoriser   # must catch all
+
+# with a real model
+export ANTHROPIC_API_KEY=...
+python ask.py "how many attention heads does the model use" --max-usd 0.01
+python evaluate_answers.py --backend minilm --model claude-haiku-4-5 \
+    --max-usd 0.15 --json-out eval/results/answers-haiku.json
 ```
 
 Then swap `--backend hashing` for `--backend minilm` and compare. The first
@@ -33,6 +44,71 @@ MiniLM run downloads about 90 MB of model weights once, after which it is
 offline.
 
 No compiler is needed on any platform, and nothing here asks for an API key.
+
+## The generation layer, and the test that makes it mean something
+
+`ask.py` answers a question from the retrieved passages, citing the document and
+page for every claim, or replies `INSUFFICIENT EVIDENCE` when the passages do
+not support an answer.
+
+The hard part is not writing that. It is proving it works. The reference this
+was forked from demos its RAG on *Attention Is All You Need*, the most famous
+paper in machine learning, which every current model knows by heart. Ask it how
+many attention heads the model uses and it answers "eight" whether the retriever
+supplied page 5 or the bibliography. The reference tries to prevent that with a
+line in the prompt:
+
+> *"you don't use your internal knowledge, but solely the information in the
+> 'The knowledge' section"*
+
+That is an instruction, not a mechanism. Nothing enforces it and nothing detects
+a breach, so the demo behaves identically with the retriever unplugged.
+
+`evaluate_answers.py` turns it into a measurement. Every answerable question is
+asked twice:
+
+- **grounded**: the passages retrieval actually returned
+- **sabotaged**: passages deliberately taken from pages that cannot contain the answer
+
+Declining under sabotage is correct. Answering *correctly* under sabotage means
+the answer came from memory, and that question proves nothing about retrieval.
+The headline number is **what fraction of the correct answers is attributable to
+retrieval rather than to recall**.
+
+Correctness is scored without an LLM judge: the question set carries an
+`answer_contains` string that a correct answer must include, matched on word
+boundaries. **This is a weak check and that is stated rather than hidden.** It
+can pass on a wrong answer containing the string and fail on a right answer
+phrased differently. 11 of the 15 answerable questions have an answer crisp
+enough for it; the rest are reported as answered-or-declined only.
+
+### Spending is bounded, and the bound is demonstrated
+
+Not because the amounts are large. A full 36-call run on Claude Haiku 4.5 prices
+at a worst case of **$0.1123**. Because "it is cheap" is not a control.
+
+1. `--max-tokens` caps output per call.
+2. `--max-usd` prices the whole run before the first request and **refuses to
+   start**, rather than stopping halfway. Set it to `0.0001` and watch it stop
+   with `Nothing was sent.`
+3. Every response's real `usage` is appended to `eval/usage-log.jsonl`, so spend
+   is observed rather than estimated. That file is gitignored.
+4. **The abstention gate is a spend control.** A question declined by retrieval
+   never reaches the API. At `--threshold 0.45` the hashing backend skips 10 of
+   21 questions, and those cost nothing.
+
+Prices are recorded in `common.py` with the date they were read
+([Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing),
+16 Sep 2026). An unpriced model raises rather than being guessed at, and a test
+asserts that.
+
+### Verifiable with no API key
+
+`--model stub` is a perfectly grounded model and `--model stub-memoriser` is one
+that ignores the passages entirely. The first must produce **zero** memory leaks
+and the second must be caught on **every** question. Two stubs, one that should
+trip nothing and one that should trip everything, is what makes the detector
+falsifiable in both directions rather than merely present.
 
 ## The corpus
 

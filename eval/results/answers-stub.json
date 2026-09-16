@@ -1,0 +1,645 @@
+{
+  "model": "stub",
+  "backend": "hashing",
+  "k": 5,
+  "threshold": null,
+  "spent_usd": 0.0,
+  "results": [
+    {
+      "id": "q01",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        2,
+        5,
+        2,
+        2,
+        5
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q02",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "recurrence [NIPS-2017-attention-is-all-you-need-Paper.pdf p.1]",
+      "pages_shown": [
+        5,
+        2,
+        2,
+        5,
+        1
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q03",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        5,
+        2,
+        7,
+        2,
+        5
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q04",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "512 [NIPS-2017-attention-is-all-you-need-Paper.pdf p.3]",
+      "pages_shown": [
+        3,
+        9,
+        9,
+        5,
+        2
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q05",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "softmax [NIPS-2017-attention-is-all-you-need-Paper.pdf p.4]",
+      "pages_shown": [
+        3,
+        4,
+        4,
+        4,
+        1
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q06",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "the answer [NIPS-2017-attention-is-all-you-need-Paper.pdf p.4]",
+      "pages_shown": [
+        3,
+        5,
+        6,
+        5,
+        4
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q07",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "8 [NIPS-2017-attention-is-all-you-need-Paper.pdf p.5]",
+      "pages_shown": [
+        4,
+        2,
+        5,
+        6,
+        4
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q08",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "the answer [NIPS-2017-attention-is-all-you-need-Paper.pdf p.5]",
+      "pages_shown": [
+        5,
+        2,
+        4,
+        4,
+        2
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q09",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": null,
+      "text": "the answer [NIPS-2017-attention-is-all-you-need-Paper.pdf p.6]",
+      "pages_shown": [
+        7,
+        6,
+        6,
+        6,
+        2
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q10",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "sinusoid [NIPS-2017-attention-is-all-you-need-Paper.pdf p.6]",
+      "pages_shown": [
+        5,
+        6,
+        7,
+        2,
+        8
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q11",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "Adam [NIPS-2017-attention-is-all-you-need-Paper.pdf p.7]",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        2,
+        7
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q12",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "P100 [NIPS-2017-attention-is-all-you-need-Paper.pdf p.7]",
+      "pages_shown": [
+        1,
+        7,
+        5,
+        8,
+        7
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q13",
+      "condition": "grounded",
+      "abstained": false,
+      "correct": true,
+      "text": "28.4 [NIPS-2017-attention-is-all-you-need-Paper.pdf p.8]",
+      "pages_shown": [
+        8,
+        1,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q14",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        6,
+        7,
+        6,
+        5,
+        6
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q15",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        6,
+        6,
+        2,
+        3,
+        5
+      ],
+      "expected_pages": [
+        9
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "u01",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        1,
+        8,
+        9,
+        8,
+        5
+      ],
+      "expected_pages": [],
+      "usd": 0.0
+    },
+    {
+      "id": "u02",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        11,
+        11,
+        10,
+        9,
+        2
+      ],
+      "expected_pages": [],
+      "usd": 0.0
+    },
+    {
+      "id": "u03",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        9,
+        6,
+        5,
+        9,
+        7
+      ],
+      "expected_pages": [],
+      "usd": 0.0
+    },
+    {
+      "id": "u04",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        3,
+        8,
+        8,
+        4,
+        8
+      ],
+      "expected_pages": [],
+      "usd": 0.0
+    },
+    {
+      "id": "u05",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        5,
+        7,
+        3,
+        2,
+        9
+      ],
+      "expected_pages": [],
+      "usd": 0.0
+    },
+    {
+      "id": "u06",
+      "condition": "grounded",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        2,
+        5,
+        2,
+        8,
+        5
+      ],
+      "expected_pages": [],
+      "usd": 0.0
+    },
+    {
+      "id": "q01",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        5,
+        2,
+        4,
+        4,
+        2
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q02",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        6,
+        6,
+        6,
+        2
+      ],
+      "expected_pages": [
+        1
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q03",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        5,
+        6,
+        7,
+        2,
+        8
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q04",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        7,
+        7,
+        8,
+        2,
+        7
+      ],
+      "expected_pages": [
+        3
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q05",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        1,
+        7,
+        5,
+        8,
+        7
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q06",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        8,
+        1,
+        9,
+        8,
+        8
+      ],
+      "expected_pages": [
+        4
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q07",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        11,
+        11,
+        10,
+        9,
+        2
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q08",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        11,
+        11,
+        10,
+        9,
+        2
+      ],
+      "expected_pages": [
+        5
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q09",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        1,
+        8,
+        9,
+        8,
+        5
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q10",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        11,
+        11,
+        10,
+        9,
+        2
+      ],
+      "expected_pages": [
+        6
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q11",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        3,
+        8,
+        8,
+        4,
+        8
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q12",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        3,
+        8,
+        8,
+        4,
+        8
+      ],
+      "expected_pages": [
+        7
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q13",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        5,
+        7,
+        3,
+        2,
+        9
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q14",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": false,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        2,
+        5,
+        2,
+        2,
+        5
+      ],
+      "expected_pages": [
+        8
+      ],
+      "usd": 0.0
+    },
+    {
+      "id": "q15",
+      "condition": "sabotaged",
+      "abstained": true,
+      "correct": null,
+      "text": "INSUFFICIENT EVIDENCE",
+      "pages_shown": [
+        2,
+        5,
+        2,
+        2,
+        5
+      ],
+      "expected_pages": [
+        9
+      ],
+      "usd": 0.0
+    }
+  ]
+}

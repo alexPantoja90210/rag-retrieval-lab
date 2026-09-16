@@ -15,6 +15,12 @@ langchain-text-splitters==0.3.8
 chromadb==1.5.9
 pypdf==5.4.0
 
+# --- the generation layer, optional -----------------------------------------
+# Only needed to run ask.py or evaluate_answers.py against a real model. The
+# `stub` and `stub-memoriser` models, the sabotage construction, the budget
+# arithmetic and the whole invariant suite run without it and without a key.
+anthropic==1.6.0
+
 # --- the minilm backend, optional ------------------------------------------
 # The `hashing` baseline, the tests and the whole evaluation pipeline run
 # without these. torch is a large wheel (~124 MB on Windows, ~550 MB on Linux),

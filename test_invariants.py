@@ -22,6 +22,16 @@ BACKEND = "hashing"
 FAILURES: list[str] = []
 
 
+def _raises(fn, exc) -> bool:
+    try:
+        fn()
+    except exc:
+        return True
+    except Exception:
+        return False
+    return False
+
+
 def check(name: str, condition: bool, detail: str = "") -> None:
     status = "ok  " if condition else "FAIL"
     print(f"  {status} {name}{('  ' + detail) if detail else ''}")
@@ -111,6 +121,46 @@ def main() -> int:
               f"{s[0.85]['answerable_still_found']}")
         check("the sweep's optimum is not at either extreme",
               max(s.values(), key=lambda r: r["balanced"])["threshold"] == 0.65)
+
+        print("abstention detection")
+        # IA-125 recorded a tutorial whose abstention check was `result == "NA"`,
+        # exact equality against free-form model output, defeated by "NA.".
+        # These are the cases that must not defeat this one.
+        for txt in [common.ABSTAIN, common.ABSTAIN + ".", common.ABSTAIN.lower(),
+                    "  " + common.ABSTAIN + "  ",
+                    common.ABSTAIN + ", the passages cover a different topic."]:
+            check(f"declines on {txt[:34]!r}", common.looks_like_abstention(txt))
+        for txt in ["The model uses 8 heads [p.5]", "", "There is insufficient time"]:
+            check(f"does NOT declare abstention on {txt[:30]!r}",
+                  not common.looks_like_abstention(txt))
+
+        print("spend controls")
+        # Haiku 4.5 at $1/MTok in, $5/MTok out, priced 16 Sep 2026.
+        one = common.worst_case_usd("claude-haiku-4-5", 1, 1_000_000, 1_000_000)
+        check("worst case of 1M in + 1M out on Haiku is $6.00", abs(one - 6.0) < 1e-9,
+              f"${one:.4f}")
+        check("an unpriced model is refused, not guessed",
+              _raises(lambda: common.worst_case_usd("gpt-9", 1, 10, 10), ValueError))
+        check("the budget stops a run it cannot afford",
+              _raises(lambda: common.check_budget("claude-haiku-4-5", 1000, 5000,
+                                                  0.0001), common.BudgetExceeded))
+        check("the budget allows a run it can afford",
+              common.check_budget("claude-haiku-4-5", 1, 1000, 1.0) > 0)
+        check("the token estimate errs high (3.5 chars/token, not 4)",
+              common.estimate_input_tokens("x" * 3500) > 900)
+
+        print("sabotage construction")
+        import evaluate_answers as ea
+        fake = [{"id": f"q{i}", "pages": [i], "question": "?",
+                 "_passages": [("d.pdf", i, 0.5, f"text {i}")]} for i in range(1, 8)]
+        clean = True
+        for i, r in enumerate(fake):
+            sab = ea.sabotage_passages(fake, i)
+            if not sab or (set(r["pages"]) & {p for _, p, _, _ in sab}):
+                clean = False
+        check("sabotage passages never include an expected page", clean)
+        check("sabotage selection is deterministic",
+              ea.sabotage_passages(fake, 0) == ea.sabotage_passages(fake, 0))
 
         print("question set")
         qs = load_questions(Path("eval/attention-paper.questions.jsonl"))

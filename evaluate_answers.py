@@ -95,11 +95,10 @@ def main() -> int:
     ap.add_argument("--json-out", default=None)
     ap.add_argument("--prompt", default="grounded", choices=list(generate.PROMPTS),
                     help="which system prompt to use for this run (IA-145)")
-    ap.add_argument("--temperature", type=float, default=common.TEMPERATURE)
     ap.add_argument("--repeats", type=int, default=1,
                     help="run every arm N times. Temperature 0 lowers variance "
-                         "and does not remove it, so a single sample per cell "
-                         "is not a measurement. IA-148.")
+                         "The SDK exposes no temperature setting, so variance "
+                         "is measured rather than suppressed. IA-148.")
     ap.add_argument("--all-arms", action="store_true",
                     help="run every prompt arm and tabulate. One variable moves: "
                          "the system prompt. Same model, retrieval, questions and "
@@ -154,7 +153,7 @@ def main() -> int:
               if r["pages"] and not is_pure_sabotage(sabotage_passages(rows, i), r)]
     n_ans_ch = sum(1 for r in rows if r["pages"] and r["_answer_chunk_ids"])
 
-    print(f"model        {args.model}  temperature={args.temperature}"
+    print(f"model        {args.model}"
           f"{'  repeats=' + str(args.repeats) if args.repeats > 1 else ''}")
     print(f"retrieval    {args.backend}, k={args.k}, threshold="
           f"{args.threshold if args.threshold is not None else 'none'}")
@@ -202,7 +201,7 @@ def main() -> int:
         passages = r["_passages"] if cond == "grounded" else sabotage_passages(rows, i)
         a = model(r["question"], passages, expect=r.get("answer_contains"),
                   expected_pages=r["pages"], max_tokens=args.max_tokens,
-                  system=system, temperature=args.temperature)
+                  system=system)
         spent += a.usd
         correct = None
         if r.get("answer_contains"):

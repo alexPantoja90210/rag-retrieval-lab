@@ -22,6 +22,15 @@ BACKEND = "hashing"
 FAILURES: list[str] = []
 
 
+def _raises_not(fn) -> bool:
+    """True when fn does not raise. Named so the assertion reads forwards."""
+    try:
+        fn()
+        return True
+    except Exception:
+        return False
+
+
 def _raises(fn, exc) -> bool:
     try:
         fn()
@@ -216,18 +225,40 @@ def main() -> int:
               not ea2.is_pure_sabotage(probey, row))
         check("an empty donor is rejected", not ea2.is_pure_sabotage([], row))
 
-        print("determinism (IA-148)")
-        check("temperature defaults to 0", common.TEMPERATURE == 0.0,
-              f"{common.TEMPERATURE}")
         import inspect as _i
-        for backend in ("stub", "stub-memoriser", "claude-haiku-4-5"):
-            sig = _i.signature(_g.get_model(backend).__call__)
-            ok = "temperature" in sig.parameters or any(
-                p.kind is _i.Parameter.VAR_KEYWORD for p in sig.parameters.values())
-            check(f"{backend} accepts a temperature", ok)
-        src = _i.getsource(_g.AnthropicModel.__call__)
-        check("the API call actually sends temperature, not just accepts it",
-              "temperature=temperature" in src)
+        print("the outgoing API call binds against the real SDK (IA-149)")
+        # The previous version of this section asserted that the string
+        # "temperature=temperature" appeared in the source of the call site. It
+        # passed while the call was invalid, because anthropic 1.6.0 removed the
+        # parameter. Checking for a word is not checking a contract.
+        #
+        # This binds the exact keywords we send against the SDK's own signature.
+        # No call, no network, no key, and it fails on precisely the mistake
+        # that got through.
+        try:
+            import anthropic.resources.messages as _M
+            have_sdk = True
+        except ImportError:
+            have_sdk = False
+        if not have_sdk:
+            print("  SKIP anthropic is not installed, so the SDK contract is "
+                  "UNCHECKED here")
+            FAILURES.append("sdk-contract-unchecked")
+        else:
+            kw = _g.AnthropicModel("claude-haiku-4-5").send_kwargs("p", "sys", 300)
+            check("we send max_tokens, the spend cap", "max_tokens" in kw)
+            check("we send a system prompt, the arm's independent variable",
+                  "system" in kw)
+            check("every keyword we send is accepted by Messages.create",
+                  _raises_not(lambda: _i.signature(_M.Messages.create).bind(None, **kw)))
+            check("the control fails on a keyword the SDK does not have",
+                  not _raises_not(lambda: _i.signature(_M.Messages.create).bind(
+                      None, **{**kw, "temperature": 0})),
+                  "temperature, the one that got through")
+
+        print("variance is measured, not assumed away")
+        check("there is no temperature setting to pretend to pin",
+              not hasattr(common, "TEMPERATURE"))
 
         print("passages carry chunk identity")
         ps = Passage("d.pdf", 3, 0.5, "text", 2, "abc123")

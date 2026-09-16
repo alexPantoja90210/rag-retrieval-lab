@@ -147,10 +147,17 @@ class AnthropicModel:
     def __init__(self, name: str) -> None:
         self.name = name
 
+    def send_kwargs(self, prompt: str, system: str | None, max_tokens: int) -> dict:
+        return {
+            "model": self.name,
+            "max_tokens": max_tokens,       # control 1: a hard cap, not a hope
+            "system": system or GROUNDED_SYSTEM,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+
     def __call__(self, question, passages, expect=None, expected_pages=None,
                  max_tokens: int = common.MAX_OUTPUT_TOKENS,
-                 system: str | None = None,
-                 temperature: float = common.TEMPERATURE, **_):
+                 system: str | None = None, **_):
         import os
 
         from anthropic import Anthropic
@@ -162,19 +169,19 @@ class AnthropicModel:
             )
         client = Anthropic()
         prompt = build_prompt(question, passages)
-        resp = client.messages.create(
-            model=self.name,
-            max_tokens=max_tokens,          # control 1: a hard cap, not a hope
-            temperature=temperature,        # pinned, so arms are comparable
-            system=system or GROUNDED_SYSTEM,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        # Built as a dict so the test suite can bind exactly these keywords
+        # against the SDK's own signature without making a call. A previous
+        # version asserted that the string "temperature=temperature" appeared
+        # in this function's source, which passed while the call was invalid:
+        # it checked for the presence of a word, not for a contract. IA-149.
+        kwargs = self.send_kwargs(prompt, system, max_tokens)
+        resp = client.messages.create(**kwargs)
         text = "".join(b.text for b in resp.content if b.type == "text").strip()
         tin, tout = resp.usage.input_tokens, resp.usage.output_tokens
         usd = common.actual_usd(self.name, tin, tout)
         common.log_usage({                   # control 3: measured, not estimated
             "model": self.name, "question": question[:120],
-            "prompt_arm": _arm_name(system), "temperature": temperature,
+            "prompt_arm": _arm_name(system),
             "input_tokens": tin, "output_tokens": tout, "usd": round(usd, 6),
         })
         return Answer(text, self.name, tin, tout, usd,

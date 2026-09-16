@@ -194,14 +194,21 @@ PRICES_USD_PER_MTOK = {
 DEFAULT_MODEL = os.environ.get("RAG_MODEL", "claude-haiku-4-5")
 MAX_OUTPUT_TOKENS = int(os.environ.get("RAG_MAX_OUTPUT_TOKENS", 300))
 
-# Temperature 0 by default. This was not set for the first two experiment runs
-# and it should have been: with identical inputs, 48 of 63 calls produced
-# different text between runs, and one verdict flipped, which was the whole of
-# an 8/11-versus-7/11 difference that had already been written up as a finding.
-# An experiment whose arms are compared on one sample each needs its only source
-# of randomness pinned. Temperature 0 reduces variance; it does not abolish it,
-# so repeats still matter. IA-148.
-TEMPERATURE = float(os.environ.get("RAG_TEMPERATURE", 0.0))
+# There is no temperature setting. anthropic 1.6.0's Messages.create does not
+# accept one: its 22 parameters are max_tokens, messages, model, cache_control,
+# container, inference_geo, metadata, output_config, service_tier,
+# stop_sequences, stream, system, thinking, tool_choice, tools,
+# user_profile_id, workspace_id and the four transport options. output_config
+# carries `effort` and `format`, not temperature.
+#
+# So the variance measured in IA-148 (48 of 63 identical inputs producing
+# different text across two runs) cannot be removed by pinning a parameter.
+# It is measured instead, with --repeats, and the per-repeat spread is printed.
+#
+# Deliberately NOT forwarded through extra_body. A value the server may ignore
+# would look like a control and not be one, which is the exact defect this
+# project exists to document. An unavailable control is replaced by a
+# measurement, not by a hopeful one.
 USAGE_LOG = Path(os.environ.get("RAG_USAGE_LOG", "eval/usage-log.jsonl"))
 
 # The exact string the model is told to produce when the passages do not
